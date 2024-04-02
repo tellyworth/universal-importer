@@ -1,0 +1,17 @@
+{
+    "name": "wordpress/universal-importer",
+    "description": "Proof of Concept WordPress plugin for importing content from any source.",
+    "keywords": [
+        "importer", "wordpress"
+    ],
+    "type": "wordpress-plugin",
+    "license": "GPL-2.0-or-later",
+    "require": {
+        "php": ">=7.4"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9"
+    },
+    "config": {
+    }
+}

@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "@wp-now/wp-now": "^0.1.66"
+  },
+  "scripts": {
+		"wp-now": "(cd source/wp-content && wp-now start --blueprint=../../blueprint.json --reset)",
+    "test": "wp-now php ./vendor/bin/phpunit"
+	}
+}
