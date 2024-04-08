@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "@wp-now/wp-now": "^0.1.66",
+    "@wp-now/wp-now": "^0.1.66"
   },
   "bin": {
     "scrape-site": "./bin/scrape-site.js"
