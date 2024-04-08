@@ -11,6 +11,9 @@ class Universal_Importer {
 	 */
 	private static $instance;
 
+	public $navigation;
+	public $last_page_content;
+
 	/**
 	 * @return Universal_Importer
 	 */
@@ -31,6 +34,7 @@ class Universal_Importer {
 	public function import( $url ) {
 		$site_indexer = SiteIndexer::instance();
 		$sitemaps = $site_indexer->get_sitemaps( $url );
+
 		if ( empty( $sitemaps ) ) {
 			return [];
 		}
@@ -40,13 +44,12 @@ class Universal_Importer {
 		$pages = $site_indexer->get_urls();
 
 		foreach ( $pages as $url ) {
-			var_dump( "fetching $url" );
 			$html = $page_fetcher->fetch( $url );
-			$nav_links = $page_traverser->get_navigation( $html );
-			var_dump( "nav links", $nav_links );
+			$page_traverser->parse_content( $html );
+			$this->navigation = $page_traverser->get_navigation();
 
-			$content = $page_traverser->get_content( $html );
-			var_dump( "content", $content );
+			$this->last_page_content = $page_traverser->get_content();
+			return; # FIXME
 		}
 
 	}

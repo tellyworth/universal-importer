@@ -4,7 +4,10 @@ class PageTraverser {
 	/**
 	 * @var PageTraverser
 	 */
-	private static $instance;
+	private static $instance; // FIXME: not sure this should be a singleton.
+
+	private $dom;
+	private $xpath;
 
 	/**
 	 * @return PageTraverser
@@ -24,37 +27,47 @@ class PageTraverser {
 	}
 
 	/**
-	 * Traverse a page
+	 * Parse content from a page.
+	 */
+	public function parse_content( $html ) {
+		$this->dom = new DOMDocument();
+		$this->dom->loadHTML( $html );
+		$this->xpath = new DOMXPath( $this->dom );
+	}
+
+	/**
+	 * Traverse a page and return the nodes matching the given xpath.
+	 * parse_content() must be called first.
 	 *
-	 * @param string $html
+	 * @param string $xpath
 	 * @return string
 	 */
-	public function get_xpath( $html, $xpath ) {
-		// Traverse the page
-		$dom = new DOMDocument();
-		@$dom->loadHTML( $html );
-		$xpath = new DOMXPath( $dom );
-		$nodes = $xpath->query( $xpath );
-
-		return $nodes;
+	public function get_xpath( $xpath ) {
+		return $this->xpath->query( $xpath );
 	}
 
-	public function get_content( $html ) {
-		if ( $this->get_xpath( $html, '//article' ) ) {
-			return $this->get_xpath( $html, '//article' );
+	public function get_content() {
+		$article = $this->get_xpath( '//article' );
+		if ( $article->count() ) {
+			return $article;
+		}
+
+		// Common in modern themes
+		$div = $this->get_xpath( '//main//div[contains(@class, \'entry-content\')]' );
+		if ( $div->count() ) {
+			return $div;
+		}
+
+		$main = $this->get_xpath( '//main' );
+		if ( $main->count() ) {
+			return $main;
 		}
 	}
 
-	public function get_navigation( $html ) {
-		$dom = new DOMDocument();
-		@$dom->loadHTML( $html );
-		$xpath = new DOMXPath( $dom );
+	public function get_navigation() {
 		// Links within the nav element
-		$nav_a = $xpath->query( '//nav//a' );
-		$links = [];
-		foreach ( $nav_a as $node ) {
-			$links[] = $node->getAttribute( 'href' );
-		}
+		$nav_a = $this->get_xpath( '//nav//a' );
+
 		return $nav_a;
 	}
 }

@@ -28,7 +28,8 @@ class SiteIndexer {
 	 * SiteIndexer constructor.
 	 */
 	private function __construct() {
-		$this->parser = new SitemapParser( 'MyCustomUserAgent' );
+		// Note UA string doesn't matter since we do our own fetching with wp_remote_get().
+		$this->parser = new SitemapParser( 'UniversalImporter' );
 	}
 
 	/**
@@ -36,7 +37,7 @@ class SiteIndexer {
 	 * @param array $pages Array of pages to check for site maps, in addititon to the home page.
 	 * @return array
 	 */
-	public function get_sitemaps( $url, $pages = [ 'robots.txt', 'sitemap.xml', 'wp-sitemap.xml', 'sitemap-index-1.xml' ] ) {
+	public function get_sitemaps( $url, $pages = [ 'robots.txt', 'wp-sitemap.xml', 'sitemap.xml', 'sitemap-index-1.xml' ] ) {
 		try {
 			$parts = parse_url( $url );
 			// Queue up specific pages first
@@ -45,37 +46,30 @@ class SiteIndexer {
 				$urls[] = $parts['scheme'] . '://' . $parts['host'] . '/' . $page;
 			}
 
-			#$parser = new SitemapParser( 'Mozilla/5.0 (Macintosh; Intel Mac OS X 14.4; rv:124.0) Gecko/20100101 Firefox/124.0', $config );
-			#$parser->addToQueue( $urls );
-
-
-			#$parser->parseRecursive( $url );
-			#var_dump( $parser );
-			var_dump( $urls );
 			$done = [];
 			$limit = 10;
 
+			$fetcher = PageFetcher::instance();
+
 			while ( $url = array_shift( $urls ) ) {
+				#var_dump( $url );
 				if ( $limit-- < 0 ) {
 					break;
 				}
 				if ( in_array( $url, $done ) ) {
 					continue;
 				}
-				echo "Fetching $url\n";
 				$done[] = $url;
-				$res = wp_remote_get( $url );
+				$res = $fetcher->fetch( $url );
 				if ( !is_wp_error( $res ) ) {
-					$this->parser->parse( $url, $res['body'] );
+					$this->parser->parse( $url, $res );
 					if ( $this->parser->getURLs() ) {
 						$this->urls = array_merge( $this->urls, $this->parser->getURLs() );
 					}
 					foreach ( $this->parser->getSitemaps() as $sitemap_url => $tags ) {
-						echo '*** Sitemap: ' . $sitemap_url . "\n";
 						if ( ! in_array( $sitemap_url, $done ) && ! in_array( $sitemap_url, $urls ) ) {
 							$urls[] = $sitemap_url;
 							$this->sitemaps[] = $sitemap_url;
-							echo "*** Count is now " . count( $urls ) . "\n";
 						}
 					}
 				} else {
