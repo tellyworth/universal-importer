@@ -9,7 +9,7 @@
     "wp-now-bp": "(cd source/wp-content && wp-now start --blueprint=../../blueprint.json --reset)",
     "wp-now": "wp-now start",
     "cli": "wp-now cli",
-    "test": "wp-now php ./vendor/bin/phpunit",
+    "test": "wp-now php --php=8.1 -- ./vendor/bin/phpunit",
     "scrape-site": "node ./bin/scrape-site.js"
   }
 }
