@@ -3,6 +3,7 @@
 require_once( dirname( __FILE__ ) . '/class-site-indexer.php' );
 require_once( dirname( __FILE__ ) . '/class-page-fetcher.php' );
 require_once( dirname( __FILE__ ) . '/class-page-traverser.php' );
+require_once( dirname( __FILE__ ) . '/class-html-transformer.php' );
 
 class Universal_Importer {
 
@@ -40,6 +41,7 @@ class Universal_Importer {
 		}
 		$page_fetcher = PageFetcher::instance();
 		$page_traverser = PageTraverser::instance();
+		$html_transformer = HTMLTransformer::instance();
 
 		$pages = $site_indexer->get_urls();
 
@@ -49,7 +51,9 @@ class Universal_Importer {
 			$this->navigation = $page_traverser->get_navigation();
 
 			$this->last_page_content = $page_traverser->get_content();
-			return; # FIXME
+
+			var_dump( $html_transformer->transform( $this->last_page_content ) );
+			return; // FIXME short circuit for now
 		}
 
 	}
