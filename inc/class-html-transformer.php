@@ -38,7 +38,7 @@ class HTMLTransformer {
 			$_flat = $node->ownerDocument->saveHTML( $node );
 			$flat[] = $_flat;
 		}
-		return implode( '', $flat );
+		return implode( "\n", $flat );
 	}
 
 	static function node_has_class( \DOMNode $node, $class ) {
@@ -76,60 +76,39 @@ class HTMLTransformer {
 		#Block_Converter::macro( 'div', array( $this, 'convert_div') );
 		Block_Converter::macro( 'div', function( \DOMNode $node ) {
 			#var_dump( 'div macro', get_called_class() ); flush(); ob_flush();
-			#var_dump( 'checking div with class', $node->getAttribute('class') ); flush(); ob_flush();
+			var_dump( 'checking div with class', $node->getAttribute('class') ); flush(); ob_flush();
 			$content = Block_Converter::get_node_html( $node );
-			// Note that `self` would refer here to Block_Converter, not HTMLTransformer.
-			if ( HTMLTransformer::node_has_class( $node, 'wp-block-columns' ) ) {
-				// FIXME: this is incomplete and should go in a helper function so it can be reused for other block types.
-				$atts = [];
-				if ( $layout = HTMLTransformer::get_node_layout_name( $node ) ) {
-					#var_dump( "got layout", $layout ); flush(); ob_flush();
-					$atts['layout'] = [ 'type' => $layout ];
-				}
-				if ( HTMLTransformer::node_has_class( $node, 'alignwide' ) ) {
-					$atts['align'] = 'wide';
-				}
-				if ( HTMLTransformer::node_has_class( $node, 'alignfull' ) ) {
-					$atts['align'] = 'full';
-				}
-				if ( HTMLTransformer::node_has_class( $node, 'has-medium-font-size' ) ) {
-					$atts['fontSize'] = 'medium';
-				}
-				#var_dump( "core/columns", $atts, $content ); flush(); ob_flush();
-				return new Block( 'core/columns', $atts, $content );
-			}
-			#var_dump( "default div" ); flush(); ob_flush();
-			return Block_Converter::html( $node );
-		} );
-	}
 
-	public function ___convert_div( \DOMNode $node ) {
-		#flush();ob_flush();
-		#var_dump( __METHOD__, memory_get_usage(), $node->getAttribute('class') );
-		#var_dump( 'block converter macro div', $node->textContent, $node->getAttribute('class') );
-		$content = Block_Converter::get_node_html( $node );
-		if ( $this->node_has_class( $node, 'wp-block-columns' ) ) {
+			#$content = $node->textContent;
+			#$content = null;
+			// Note that `self` would refer here to Block_Converter, not HTMLTransformer.
 			// FIXME: this is incomplete and should go in a helper function so it can be reused for other block types.
 			$atts = [];
-			if ( $layout = $this->get_node_layout_name( $node ) ) {
+			if ( $layout = HTMLTransformer::get_node_layout_name( $node ) ) {
 				#var_dump( "got layout", $layout );
 				$atts['layout'] = [ 'type' => $layout ];
 			}
-			if ( $this->node_has_class( $node, 'alignwide' ) ) {
+			if ( HTMLTransformer::node_has_class( $node, 'alignwide' ) ) {
 				$atts['align'] = 'wide';
 			}
-			if ( $this->node_has_class( $node, 'alignfull' ) ) {
+			if ( HTMLTransformer::node_has_class( $node, 'alignfull' ) ) {
 				$atts['align'] = 'full';
 			}
-			if ( $this->node_has_class( $node, 'has-medium-font-size' ) ) {
+			if ( HTMLTransformer::node_has_class( $node, 'has-medium-font-size' ) ) {
 				$atts['fontSize'] = 'medium';
 			}
-			#var_dump( "core/columns", $atts, $content ); flush(); ob_flush();
-			return new Block( 'core/columns', $atts, $content );
-		}
+			if ( HTMLTransformer::node_has_class( $node, 'wp-block-columns' ) ) {
+				var_dump( "core/columns", $atts, $content ); flush(); ob_flush();
+				return new Block( 'core/columns', $atts, $content );
+			} elseif ( HTMLTransformer::node_has_class( $node, 'wp-block-column' ) ) {
+				var_dump( "core/column", $atts, $content ); flush(); ob_flush();
+				return new Block( 'core/column', $atts, $content );
+			}
 
-		#var_dump( "div" ); flush(); ob_flush();
-		return Block_Converter::p( $node );
+			var_dump( "default div" ); flush(); ob_flush();
+			// FIXME: this should be a div; need to double check it's not causing an infinite loop like early bugs.
+			return Block_Converter::html( $node );
+		} );
 	}
 
 	/**
