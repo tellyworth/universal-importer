@@ -72,7 +72,7 @@ class HTMLTransformer {
 			}
 		} else {*/
 		//}
-
+/*
 		#Block_Converter::macro( 'div', array( $this, 'convert_div') );
 		Block_Converter::macro( 'div', function( \DOMNode $node ) {
 			#var_dump( 'div macro', get_called_class() ); flush(); ob_flush();
@@ -109,6 +109,8 @@ class HTMLTransformer {
 			// FIXME: this should be a div; need to double check it's not causing an infinite loop like early bugs.
 			return Block_Converter::html( $node );
 		} );
+
+	*/
 	}
 
 	/**

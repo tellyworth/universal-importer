@@ -1,6 +1,6 @@
 <?php
 
-use Alley\WP\Block_Converter\Block_Converter;
+require_once( dirname( dirname( __DIR__ ) ) . '/inc/class-block-converter-recursive.php' );
 
 class TestBlockConverter extends \PHPUnit\Framework\TestCase {
 
@@ -24,10 +24,10 @@ class TestBlockConverter extends \PHPUnit\Framework\TestCase {
 		</div>
 EOF;
 
-		$converter = new Block_Converter( $html );
+		$converter = new Block_Converter_Recursive( $html );
 
 		$blocks = $converter->convert();
-		#var_dump( __METHOD__, $html, $blocks );
+		var_dump( __METHOD__, $html, $blocks );ob_flush();flush();
 		$this->assertNotEmpty( $blocks );
 	}
 
@@ -36,10 +36,10 @@ EOF;
 		<p class="is-style-short-text">The open source publishing platform of choice for millions of websites worldwide—from creators and small businesses to enterprises.</p>
 EOF;
 
-		$converter = new Block_Converter( $html );
+		$converter = new Block_Converter_Recursive( $html );
 
 		$blocks = $converter->convert();
-		#var_dump( __METHOD__, $html, $blocks );
+		var_dump( __METHOD__, $html, $blocks );ob_flush();flush();
 		$this->assertNotEmpty( $blocks );
 	}
 
@@ -48,11 +48,18 @@ EOF;
 		<div class="wp-block-columns alignwide is-layout-flex wp-container-core-columns-is-layout-1 wp-block-columns-is-layout-flex">
 EOF;
 
-		$converter = new Block_Converter( $html );
+		// FIXME: confirm if end div should be added
+		$expected =<<<EOF
+<!-- wp:columns {"layout":{"type":"flex"},"align":"wide"} -->
+<div class="wp-block-columns alignwide is-layout-flex wp-container-core-columns-is-layout-1 wp-block-columns-is-layout-flex"></div>
+<!-- /wp:columns -->
+EOF;
+
+		$converter = new Block_Converter_Recursive( $html );
 
 		$blocks = $converter->convert();
-		#var_dump( __METHOD__, $html, $blocks );
-		$this->assertNotEmpty( $blocks );
+		#var_dump( __METHOD__, $html, $blocks );ob_flush();flush();
+		$this->assertEquals( $expected, $blocks );
 	}
 
 }
