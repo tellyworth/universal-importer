@@ -99,6 +99,7 @@ class Block_Converter_Recursive extends Block_Converter {
 				$inner_html[] = $this->convert_recursive( $child_node );
 			}
 
+			// FIXME: it would be much better to traverse the DOM rather than using inner HTML strings, but this will do for now.
 			if ( ! empty( $inner_html ) ) {
 				$this->set_inner_html( $node, implode( "\n", $inner_html ) );
 			}
@@ -129,9 +130,12 @@ class Block_Converter_Recursive extends Block_Converter {
 	 */
 	protected function set_inner_html( DOMNode $element, string $html)
 	{
-		if ( !$html )
+		if ( !$html ) {
 			return;
-		var_dump( "set inner html", $element, $html );
+		}
+		$html = force_balance_tags( $html ); // FIXME: hack.
+		#var_dump( "set inner html", $element->nodeName, $element->getAttribute('class'), $html );
+		libxml_use_internal_errors(true);
 		$fragment = $element->ownerDocument->createDocumentFragment();
 		$fragment->appendXML($html);
 		while ($element->hasChildNodes())
