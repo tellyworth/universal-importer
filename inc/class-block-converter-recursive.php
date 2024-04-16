@@ -222,4 +222,10 @@ class Block_Converter_Recursive extends Block_Converter {
 		return implode( "\n", $content );;
 	}
 
+	protected function h( \DOMNode $node ): ?Block {
+		// Remove style attributes to prevent block validation errors.
+		$node->removeAttribute( 'style' );
+		return parent::h( $node );
+	}
+
 }
