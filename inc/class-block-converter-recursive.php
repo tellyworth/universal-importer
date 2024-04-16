@@ -228,4 +228,53 @@ class Block_Converter_Recursive extends Block_Converter {
 		return parent::h( $node );
 	}
 
+	protected function figure( \DOMNode $node ): ?Block {
+		// Must contain an img tag.
+		if ( ! $node->hasChildNodes() ) {
+			return null;
+		}
+		if ( 'img' !== $node->firstChild->nodeName ) {
+			return null;
+		}
+
+		// Must also be a block
+		if ( ! static::node_has_class( $node, 'wp-block-image' ) ) {
+			return null;
+		}
+
+		// Remove style attributes to prevent block validation errors.
+		$node->removeAttribute( 'style' );
+		$img = $node->firstChild;
+		// Find the img ID if set
+		$img_id = null;
+		if ( preg_match( '/wp-image-(\d+)/', $img->getAttribute( 'class' ), $matches ) ) {
+			$img_id = intval( $matches[1] );
+		}
+		// Remove most of the img attributes since they'll be handled by the block.
+		$img->removeAttribute( 'style' );
+		$img->removeAttribute( 'width' );
+		$img->removeAttribute( 'height' );
+		$img->removeAttribute( 'sizes' );
+		$img->removeAttribute( 'srcset' );
+
+		$atts = [];
+		if ( $img_id ) {
+			$atts['id'] = $img_id;
+		}
+		if ( static::node_has_class( $node, 'size-full' ) ) {
+			$atts['sizeSlug'] = 'full';
+		} elseif ( static::node_has_class( $node, 'size-large' ) ) {
+			$atts['sizeSlug'] = 'large';
+		} elseif ( static::node_has_class( $node, 'size-medium' ) ) {
+			$atts['sizeSlug'] = 'medium';
+		} elseif ( static::node_has_class( $node, 'size-thumbnail' ) ) {
+			$atts['sizeSlug'] = 'thumbnail';
+		}
+		// FIXME: handle linkDestination if <a> tag is present?
+
+		$content = static::get_node_html( $node );
+		$block = new Block( 'core/image', $atts, $content );
+		return $block;
+	}
+
 }
