@@ -45,7 +45,9 @@ EOF;
 <!-- /wp:columns --></div>
  */
 
+		// And here's what it currently outputs.
 		// Note that there are whitespace differences, but functionally this is very similar minus some styling attributes.
+		// Importantly, it manages to produce the correct block types including columns/column and the image block.
 		$expected = <<<EOF
 <!-- wp:columns {"layout":{"type":"flex"},"align":"wide"} -->
 <div class="wp-block-columns alignwide is-layout-flex wp-container-core-columns-is-layout-1 wp-block-columns-is-layout-flex"><!-- wp:column {"layout":{"type":"default"}} --><div class="wp-block-column is-vertically-aligned-center is-layout-flow wp-block-column-is-layout-flow"><!-- wp:heading {"level":1} --><h1 class="wp-block-heading">Meet WordPress</h1><!-- /wp:heading -->
