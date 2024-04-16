@@ -17,7 +17,7 @@ class Block_Converter_Recursive extends Block_Converter {
 		$dom->loadHTML( '<?xml encoding="utf-8" ?>' . $this->html );
 		$content = $dom->childNodes;
 		*/
-		var_dump( "content", $content ); flush(); ob_flush();
+		#var_dump( "content", $content ); flush(); ob_flush();
 
 		// Bail early if is empty.
 		if ( empty( $content ) ) {
@@ -30,7 +30,7 @@ class Block_Converter_Recursive extends Block_Converter {
 				continue;
 			}
 
-			var_dump( "content child node", $node );
+			#var_dump( "content child node", $node->nodeName, $node->getAttribute('class') );
 			$html[] = $this->convert_recursive( $content->item( 0 ) );
 
 		}
@@ -43,7 +43,7 @@ class Block_Converter_Recursive extends Block_Converter {
 				continue;
 			}
 
-			var_dump( "content child node", $node );
+			#var_dump( "content child node", $node );
 			/**
 			 * Hook to allow output customizations.
 			 *
@@ -140,6 +140,7 @@ class Block_Converter_Recursive extends Block_Converter {
 		$fragment->appendXML($html);
 		while ($element->hasChildNodes())
 			$element->removeChild($element->firstChild);
+		#var_dump( "fragment", $element->ownerDocument->saveHTML( $fragment ) );
 		$element->appendChild($fragment);
 	}
 
@@ -171,7 +172,7 @@ class Block_Converter_Recursive extends Block_Converter {
 	 */
 	public function div( \DOMNode $node ) {
 		#var_dump( 'div macro', get_called_class() ); flush(); ob_flush();
-		var_dump( 'checking div with class', $node->getAttribute('class') ); flush(); ob_flush();
+		#var_dump( 'checking div with class', $node->getAttribute('class') ); flush(); ob_flush();
 
 		#$content = $node->textContent;
 		#$content = null;
@@ -199,10 +200,10 @@ class Block_Converter_Recursive extends Block_Converter {
 			$atts['fontSize'] = 'medium';
 		}
 		if ( static::node_has_class( $node, 'wp-block-columns' ) ) {
-			var_dump( "core/columns", $atts, $node->nodeName ); flush(); ob_flush();
+			#var_dump( "core/columns", $atts, $node->nodeName ); flush(); ob_flush();
 			return new Block( 'core/columns', $atts, $content );
 		} elseif ( static::node_has_class( $node, 'wp-block-column' ) ) {
-			var_dump( "core/column", $atts, $node->nodeName ); flush(); ob_flush();
+			#var_dump( "core/column", $atts, $node->nodeName ); flush(); ob_flush();
 			return new Block( 'core/column', $atts, $content );
 		}
 
