@@ -171,19 +171,12 @@ class Block_Converter_Recursive extends Block_Converter {
 	 * Handle some div blocks
 	 */
 	public function div( \DOMNode $node ) {
-		#var_dump( 'div macro', get_called_class() ); flush(); ob_flush();
-		#var_dump( 'checking div with class', $node->getAttribute('class') ); flush(); ob_flush();
 
-		#$content = $node->textContent;
-		#$content = null;
-
-		$content = static::get_node_html( $node );
-		if ( empty( $content ) ) {
-			var_dump( "empty content" );
+		// Bail early if the node is empty; it's not a block so can be left as-is.
+		if ( empty( $node->textContent ) && empty( $node->childNodes ) ) {
 			return null;
 		}
 
-		// Note that `self` would refer here to Block_Converter, not HTMLTransformer.
 		// FIXME: this is incomplete and should go in a helper function so it can be reused for other block types.
 		$atts = [];
 		if ( $layout = static::get_node_layout_name( $node ) ) {
@@ -200,11 +193,19 @@ class Block_Converter_Recursive extends Block_Converter {
 			$atts['fontSize'] = 'medium';
 		}
 		if ( static::node_has_class( $node, 'wp-block-columns' ) ) {
+			$node->removeAttribute('style');
+			$content = static::get_node_html( $node );
 			#var_dump( "core/columns", $atts, $node->nodeName ); flush(); ob_flush();
-			return new Block( 'core/columns', $atts, $content );
+			$block = new Block( 'core/columns', $atts, $content );
+			#var_dump( $block );
+			return $block;
 		} elseif ( static::node_has_class( $node, 'wp-block-column' ) ) {
+			$node->removeAttribute('style');
+			$content = static::get_node_html( $node );
 			#var_dump( "core/column", $atts, $node->nodeName ); flush(); ob_flush();
-			return new Block( 'core/column', $atts, $content );
+			$block = new Block( 'core/column', $atts, $content );
+			#var_dump( $block );
+			return $block;
 		}
 
 		return null; // Default
