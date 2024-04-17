@@ -59,7 +59,7 @@ EOF;
 		$converter = new Block_Converter_Recursive( $html );
 
 		$blocks = $converter->convert();
-		var_dump( __METHOD__, 'input', $html, 'actual', $blocks );ob_flush();flush();
+		#var_dump( __METHOD__, 'input', $html, 'actual', $blocks );ob_flush();flush();
 		$this->assertEquals( $expected, $blocks );
 	}
 
