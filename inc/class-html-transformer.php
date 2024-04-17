@@ -1,6 +1,6 @@
 <?php
 
-use Alley\WP\Block_Converter\Block_Converter;
+use Block_Converter_Recursive;
 use Alley\WP\Block_Converter\Block;
 
 // A class to transform segments of HTML into Gutenberg blocks.
@@ -121,7 +121,7 @@ class HTMLTransformer {
 		if ( is_a( $html, '\DOMNodeList' ) ) {
 			$html = $this->flatten( $html );
 		}
-		$converter = new Block_Converter( $html );
+		$converter = new Block_Converter_Recursive( $html );
 
 		return $converter->convert();
 	}
