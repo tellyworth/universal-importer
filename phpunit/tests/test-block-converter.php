@@ -101,4 +101,25 @@ EOF;
 		$this->assertEquals( $expected, $blocks );
 	}
 
+	public function test_fragment_bug() {
+		$html =<<<EOF
+		<div style="" class="grunion-field-text-wrap grunion-field-wrap">
+		<label for="g4-contactname" class="grunion-field-label text">Contact Name<span class="grunion-label-required" aria-hidden="true">(required)</span></label>
+		<input type="text" name="g4-contactname" id="g4-contactname" value="" class="text  grunion-field" required aria-required="true">
+			</div>
+EOF;
+
+		// Should be left intact inside the html wrapper
+		$expected = <<<EOF
+<div style="" class="grunion-field-text-wrap grunion-field-wrap"><!-- wp:html --><label for="g4-contactname" class="grunion-field-label text">Contact Name<span class="grunion-label-required" aria-hidden="true">(required)</span></label><!-- /wp:html --><!-- wp:html --><input type="text" name="g4-contactname" id="g4-contactname" value="" class="text  grunion-field" required aria-required="true"><!-- /wp:html --></div>
+EOF;
+
+		$converter = new Block_Converter_Recursive( $html );
+
+		$blocks = $converter->convert();
+		var_dump( __METHOD__, $html, $blocks );ob_flush();flush();
+		$this->assertEquals( $expected, $blocks );
+
+	}
+
 }
