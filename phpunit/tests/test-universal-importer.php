@@ -31,12 +31,34 @@ class TestUniversalImporter extends \PHPUnit\Framework\TestCase {
 	}
 
 	public function test_import()  {
+		// FIXME: use phpunit's mock stuff for this instead
+		$pages = [];
+
+		$handler = function( $url, $blocks ) use ( &$pages ) {
+			$pages[ $url ] = $blocks;
+		};
+
 		$importer = Universal_Importer::instance();
-		$importer->import( 'https://buffalo.wordcamp.org/2024/' );
-		$this->assertTrue( true );
+		$importer->import( 'https://buffalo.wordcamp.org/2024/', $handler );
 		// Should be exactly one "content" section
-		$this->assertEquals( 1, $importer->last_page_content->count() );
+		$this->assertGreaterThan( 1, $importer->last_page_content->count() );
 		$this->assertEquals( 16, $importer->navigation->count() );
+
+		$this->assertEquals( 29, count( $pages ) );
+
+		$fetcher = PageFetcher::instance();
+		foreach ( $pages as $url => $blocks ) {
+			$this->assertIsString( $url );
+			$this->assertIsString( $blocks );
+
+			$expected_file = $fetcher->get_cache_filename( 'buffalo.wordcamp.org', $url ) . '.blocks';
+			if ( !file_exists( $expected_file ) ) {
+				// FIXME: used to create test files
+				#file_put_contents( $expected_file, $blocks  );
+			}
+			$expected_blocks = file_get_contents( $expected_file );
+			$this->assertEquals( $expected_blocks, $blocks, "Failed matching extracted blocks to expected for $url ($expected_file)" );
+		}
 	}
 
 }
