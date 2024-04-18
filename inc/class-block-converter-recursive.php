@@ -127,22 +127,34 @@ class Block_Converter_Recursive extends Block_Converter {
 
 	/**
 	 * Set the inner HTML property of a DOMNode.
+	 * This is crafted to work reasonably well with sloppy HTML.
 	 */
-	protected function set_inner_html( DOMNode $element, string $html)
-	{
+	protected function set_inner_html( DOMNode $element, string $html ) {
 		if ( !$html ) {
 			return;
 		}
-		$html = force_balance_tags( $html ); // FIXME: hack.
-		#var_dump( "set inner html", $element->nodeName, $element->getAttribute('class'), $html );
-		libxml_use_internal_errors(true);
-		$fragment = $element->ownerDocument->createDocumentFragment();
-		$fragment->appendXML($html);
-		while ($element->hasChildNodes())
-			$element->removeChild($element->firstChild);
-		#var_dump( "fragment", $element->ownerDocument->saveHTML( $fragment ) );
-		$element->appendChild($fragment);
+		$DOM_inner_HTML = new DOMDocument();
+		$internal_errors = libxml_use_internal_errors( true );
+		$html = mb_convert_encoding( $html, 'HTML-ENTITIES', 'UTF-8' );
+
+		// Load the HTML into a bare document
+		$DOM_inner_HTML->loadHTML( $html, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD | LIBXML_NOENT );
+		libxml_use_internal_errors( $internal_errors );
+
+		// Remove all of the existing inner content
+		while ( $element->hasChildNodes() ) {
+			$element->removeChild( $element->firstChild );
+		}
+
+		// Append the new content one node at a time
+		while ( $content_node = $DOM_inner_HTML->firstChild ) {
+			$_content_node = $element->ownerDocument->importNode( $content_node, true );
+			$element->appendChild( $_content_node );
+			$DOM_inner_HTML->removeChild( $content_node );
+		}
+
 	}
+
 
 	static function node_has_class( \DOMNode $node, $class ) {
 		return in_array( $class, explode( ' ', $node->getAttribute( 'class' ) ) );
@@ -275,6 +287,16 @@ class Block_Converter_Recursive extends Block_Converter {
 		$content = static::get_node_html( $node );
 		$block = new Block( 'core/image', $atts, $content );
 		return $block;
+	}
+
+	// Parent class uses p for many inline blocks, so we need to override it.
+	function p( \DOMNode $node ): ?Block {
+		if ( 'p' === $node->nodeName ) {
+			return parent::p( $node );
+		}
+
+		// Default should leave the HTML as-is.
+		return null;
 	}
 
 }
