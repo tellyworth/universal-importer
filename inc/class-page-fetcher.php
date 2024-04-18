@@ -54,10 +54,10 @@ class PageFetcher {
 
 		$res = wp_remote_get( $url );
 		if ( !is_wp_error( $res ) ) {
+			$body = wp_remote_retrieve_body( $res );
 			if ( $cache_file ) {
-				$body = wp_remote_retrieve_body( $res );
+				file_put_contents( $cache_file, $body );
 			}
-			file_put_contents( $cache_file, $body );
 			return $body;
 		}
 
