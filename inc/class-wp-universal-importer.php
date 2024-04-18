@@ -7,6 +7,7 @@ if ( ! class_exists( 'WP_Importer' ) ) {
 }
 
 require_once( __DIR__ . '/class-site-indexer.php' );
+require_once( __DIR__ . '/class-universal-importer.php' );
 
 class WP_Universal_Importer extends WP_Importer {
 	public function __construct() {
@@ -33,9 +34,7 @@ class WP_Universal_Importer extends WP_Importer {
 			$url = esc_url_raw($_POST['source_url']);
 			$site_indexer = SiteIndexer::instance();
 			$sitemaps = $site_indexer->get_sitemaps( 'https://buffalo.wordcamp.org/2024/' );
-			var_dump( __METHOD__, $sitemaps );
-			var_dump( "found pages", count($site_indexer->get_urls()) );
-			#$this->perform_import($url);
+			$this->perform_import($url);
 		} else {
 			$this->greet();
 		}
@@ -56,15 +55,19 @@ class WP_Universal_Importer extends WP_Importer {
 	private function perform_import($url) {
 		// Your import logic based on the URL
 		echo '<p>Starting import from: ' . esc_html($url) . '</p>';
-		// Example of fetching data:
-		$response = wp_remote_get($url);
-		if (is_wp_error($response)) {
-			echo '<p>Error: Unable to fetch data.</p>';
-		} else {
-			$data = wp_remote_retrieve_body($response); // assuming the data is directly usable or further processing is needed
-			// Implement your actual data processing and importing logic here.
-			echo '<p>Import complete.</p>';
-		}
+
+		$universal_importer = Universal_Importer::instance();
+		$universal_importer->import( $url, array( $this, 'import_page' ) );
+	}
+
+	public function import_page( $url, $blocks ) {
+		echo '<p>Importing page: ' . esc_html($url) . '</p>';
+		wp_insert_post( array(
+			'post_title' => $url,
+			'post_content' => $blocks,
+			'post_status' => 'publish',
+			'post_type' => 'page',
+		) );
 	}
 
 }
