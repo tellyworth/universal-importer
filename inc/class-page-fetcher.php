@@ -34,13 +34,17 @@ class PageFetcher {
 		$this->local_cache_dir = realpath( $path );
 	}
 
+	public function get_cache_filename( $domain, $url ) {
+		return $this->get_local_cache_dir() ? $this->local_cache_dir . '/' . $domain . '-' . hash( 'sha256', $url ) : false;
+	}
+
 	public function get_local_cache_dir() {
 		return $this->local_cache_dir && file_exists( $this->local_cache_dir ) && is_dir( $this->local_cache_dir );
 	}
 
 	private function fetch_url_with_cache( $url ) {
 		$domain = parse_url( $url, PHP_URL_HOST );
-		$cache_file = $this->get_local_cache_dir() ? $this->local_cache_dir . '/' . $domain . '-' . hash( 'sha256', $url ) : false;
+		$cache_file = $this->get_cache_filename( $domain, $url );
 
 		if ( $cache_file ) {
 			if ( file_exists( $cache_file ) ) {
