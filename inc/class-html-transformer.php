@@ -1,7 +1,8 @@
 <?php
 
-use Block_Converter_Recursive;
 use Alley\WP\Block_Converter\Block;
+
+require_once __DIR__ . '/class-block-converter-recursive.php';
 
 // A class to transform segments of HTML into Gutenberg blocks.
 
