@@ -32,7 +32,7 @@ class Universal_Importer {
 		// Add your hooks here
 	}
 
-	public function import( $url ) {
+	public function import( $url, $handler = null ) {
 		$site_indexer = SiteIndexer::instance();
 		$sitemaps = $site_indexer->get_sitemaps( $url );
 
@@ -52,8 +52,15 @@ class Universal_Importer {
 
 			$this->last_page_content = $page_traverser->get_content();
 
-			var_dump( $html_transformer->transform( $this->last_page_content ) );
-			return; // FIXME short circuit for now
+			if ( $this->last_page_content->count() ) {
+				$blocks = $html_transformer->transform( $this->last_page_content );
+
+				if ( $handler && is_callable( $handler ) ) {
+					call_user_func( $handler, $url, $blocks );
+				}
+
+			}
+			#return; // FIXME short circuit for now
 		}
 
 	}
