@@ -10,9 +10,11 @@
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  */
 
- // autoload
-require_once dirname( __DIR__ ) . '/vendor/autoload.php';
-// Load the plugin
-require_once __DIR__ . '/inc/class-universal-importer.php';
-Universal_Importer::instance();
+ add_action( 'admin_init', function() {
+	// autoload
+	require_once __DIR__ . '/vendor/autoload.php';
+	// Load the plugin
+	require_once __DIR__ . '/inc/class-wp-universal-importer.php';
+	$plugin = new WP_Universal_Importer();
+ } );
 
