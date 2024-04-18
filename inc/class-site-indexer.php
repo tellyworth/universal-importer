@@ -3,6 +3,15 @@
 use vipnytt\SitemapParser;
 use vipnytt\SitemapParser\Exceptions\SitemapParserException;
 
+require_once( dirname( __FILE__ ) . '/class-page-fetcher.php' );
+
+// FIXME: needed for wp-now until mb_split is supported
+if ( !function_exists( 'mb_split' ) ) {
+	function mb_split( $pattern, $string, $limit = -1 ) {
+		return preg_split( "/$pattern/u", $string, $limit );
+	}
+}
+
 class SiteIndexer {
 	/**
 	 * @var SiteIndexer
@@ -52,7 +61,6 @@ class SiteIndexer {
 			$fetcher = PageFetcher::instance();
 
 			while ( $url = array_shift( $urls ) ) {
-				#var_dump( $url );
 				if ( $limit-- < 0 ) {
 					break;
 				}
