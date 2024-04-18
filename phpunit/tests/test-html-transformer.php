@@ -4,14 +4,6 @@ require_once( dirname( dirname( __DIR__ ) ) . '/inc/class-html-transformer.php' 
 
 class TestHTMLTransformer extends \PHPUnit\Framework\TestCase {
 
-	static function _setUpBeforeClass(): void {
-		// apply_filters( 'wp_block_converter_block', $this->{$node->nodeName}( $node ), $node );
-		add_filter( 'wp_block_converter_block', function( $nodename, $node ) {
-			var_dump( 'wp_block_converter_block', $nodename, $node->getAttribute('class') ); ob_flush(); flush();
-			return $nodename;
-		}, 10, 2 );
-	}
-
 	public function test_sample_html() {
 		$html =<<<EOF
 
