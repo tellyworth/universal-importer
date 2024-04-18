@@ -27,7 +27,7 @@ EOF;
 		$transformer = HTMLTransformer::instance();
 
 		$blocks = $transformer->transform( $html );
-		var_dump( __METHOD__, $html, $blocks );
+		#var_dump( __METHOD__, $html, $blocks );
 		$this->assertNotEmpty( $blocks );
 	}
 
@@ -47,7 +47,7 @@ EOF;
 		$transformer = HTMLTransformer::instance();
 
 		$blocks = $transformer->transform( $html );
-		var_dump( __METHOD__, $html, $blocks );
+		#var_dump( __METHOD__, $html, $blocks );
 		$this->assertNotEmpty( $blocks );
 	}
 
