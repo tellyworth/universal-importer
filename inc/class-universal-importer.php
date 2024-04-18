@@ -52,7 +52,7 @@ class Universal_Importer {
 
 			$this->last_page_content = $page_traverser->get_content();
 
-			if ( $this->last_page_content->count() ) {
+			if ( $this->last_page_content ) {
 				$blocks = $html_transformer->transform( $this->last_page_content );
 
 				if ( $handler && is_callable( $handler ) ) {
