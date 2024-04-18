@@ -31,7 +31,7 @@ class PageTraverser {
 	 */
 	public function parse_content( $html ) {
 		$this->dom = new DOMDocument();
-		$this->dom->loadHTML( $html );
+		$this->dom->loadHTML( $html , LIBXML_NOERROR | LIBXML_NOWARNING );
 		$this->xpath = new DOMXPath( $this->dom );
 	}
 
@@ -47,18 +47,18 @@ class PageTraverser {
 	}
 
 	public function get_content() {
-		$article = $this->get_xpath( '//article' );
+		$article = $this->get_xpath( '//article/*' );
 		if ( $article->count() ) {
 			return $article;
 		}
 
 		// Common in modern themes
-		$div = $this->get_xpath( '//main//div[contains(@class, \'entry-content\')]' );
+		$div = $this->get_xpath( '//main//div[contains(@class, \'entry-content\')]/*' );
 		if ( $div->count() ) {
 			return $div;
 		}
 
-		$main = $this->get_xpath( '//main' );
+		$main = $this->get_xpath( '//main/*' );
 		if ( $main->count() ) {
 			return $main;
 		}
