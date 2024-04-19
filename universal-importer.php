@@ -18,3 +18,14 @@
 	$plugin = new WP_Universal_Importer();
  } );
 
+function universal_importer_activate() {
+	// FIXME: needed for wp-now/playground
+	global $wp_rewrite;
+	update_option("rewrite_rules", FALSE);
+	$wp_rewrite->set_permalink_structure('/%postname%/');
+	$wp_rewrite->flush_rules(true);
+
+	// Clear the permalinks after the post type has been registered.
+	flush_rewrite_rules();
+}
+register_activation_hook( __FILE__, 'universal_importer_activate' );
