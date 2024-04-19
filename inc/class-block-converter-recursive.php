@@ -1,0 +1,351 @@
+<?php
+
+use Alley\WP\Block_Converter\Block_Converter;
+use Alley\WP\Block_Converter\Block;
+
+class Block_Converter_Recursive extends Block_Converter {
+	/**
+	 * Convert HTML to Gutenberg blocks, recursing to handle nested blocks.
+	 *
+	 * @return string The HTML.
+	 */
+	public function convert(): string {
+		// Get tags from the html.
+		$content = static::get_node_tag_from_html( $this->html );
+		/*
+		$dom = new DOMDocument();
+		$dom->loadHTML( '<?xml encoding="utf-8" ?>' . $this->html );
+		$content = $dom->childNodes;
+		*/
+		#var_dump( "content", $content ); flush(); ob_flush();
+
+		// Bail early if is empty.
+		if ( empty( $content ) ) {
+			return '';
+		}
+
+		$html = [];
+		foreach ( $content->item( 0 )->childNodes as $node ) {
+			if ( '#text' === $node->nodeName ) {
+				continue;
+			}
+
+			$html[] = $this->convert_recursive( $content->item( 0 ) );
+
+		}
+
+		return implode( "\n\n", $html );
+
+
+		foreach ( $content->childNodes as $node ) {
+			if ( '#text' === $node->nodeName ) {
+				continue;
+			}
+
+			#var_dump( "content child node", $node );
+			/**
+			 * Hook to allow output customizations.
+			 *
+			 * @since 1.0.0
+			 *
+			 * @param Block|null $block The generated block object.
+			 * @param DOMNode   $node  The node being converted.
+			 */
+			$tag_block = apply_filters( 'wp_block_converter_block', $this->{$node->nodeName}( $node ), $node );
+
+
+			// Bail early if is empty.
+			if ( empty( $tag_block ) ) {
+				continue;
+			}
+
+
+			// Merge the block into the HTML collection.
+
+
+			$html[] = $this->minify_block( (string) $tag_block );
+		}
+
+
+		$html = implode( "\n\n", $html );
+
+
+		// Remove empty blocks.
+		$html = $this->remove_empty_blocks( $html );
+
+
+		/**
+		 * Content converted into blocks.
+		 *
+		 * @since 1.0.0
+		 *
+		 * @param string        $html    HTML converted into Gutenberg blocks.
+		 * @param DOMNodeList $content The original DOMNodeList.
+		 */
+		return trim( (string) apply_filters( 'wp_block_converter_document_html', $html, $content ) );
+	}
+
+	public function convert_recursive( DOMNode $node ): string {
+
+		// Depth-first recursion through child nodes.
+		if ( $node->hasChildNodes() ) {
+			$inner_html = [];
+			foreach( $node->childNodes as $child_node ) {
+				if ( '#text' === $child_node->nodeName ) {
+					continue;
+				}
+
+				$inner_html[] = $this->convert_recursive( $child_node );
+			}
+
+			$str_inner_html = implode( "\n", $inner_html );
+
+			// FIXME: it would be much better to traverse the DOM rather than using inner HTML strings, but this will do for now.
+			if ( $str_inner_html ) {
+				$this->set_inner_html( $node, $str_inner_html );
+			}
+		}
+
+		/**
+		 * Hook to allow output customizations.
+		 *
+		 * @since 1.0.0
+		 *
+		 * @param Block|null $block The generated block object.
+		 * @param DOMNode   $node  The node being converted.
+		 */
+		$tag_block = apply_filters( 'wp_block_converter_block', $this->{$node->nodeName}( $node ), $node );
+
+		if ( empty( $tag_block ) ) {
+			return '';
+		}
+
+		// Remove empty blocks.
+		$html = $this->remove_empty_blocks( $tag_block );
+
+		return $html;
+	}
+
+	/**
+	 * Set the inner HTML property of a DOMNode.
+	 * This is crafted to work reasonably well with sloppy HTML.
+	 */
+	protected function set_inner_html( DOMNode $element, string $html ) {
+		if ( !$html ) {
+			return;
+		}
+		$DOM_inner_HTML = new DOMDocument();
+		$internal_errors = libxml_use_internal_errors( true );
+		$html = mb_convert_encoding( $html, 'HTML-ENTITIES', 'UTF-8' );
+
+		// Load the HTML into a bare document
+		$DOM_inner_HTML->loadHTML( $html, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD | LIBXML_NOENT );
+		libxml_use_internal_errors( $internal_errors );
+
+		// Remove all of the existing inner content
+		while ( $element->hasChildNodes() ) {
+			$element->removeChild( $element->firstChild );
+		}
+
+		// Append the new content one node at a time
+		while ( $content_node = $DOM_inner_HTML->firstChild ) {
+			$_content_node = $element->ownerDocument->importNode( $content_node, true );
+			$element->appendChild( $_content_node );
+			$DOM_inner_HTML->removeChild( $content_node );
+		}
+
+	}
+
+
+	static function node_has_class( \DOMNode $node, $class ) {
+		if ( !method_exists( $node, 'getAttribute' ) ) {
+			return false;
+		}
+		return in_array( $class, explode( ' ', $node->getAttribute( 'class' ) ) );
+	}
+
+	static function get_node_layout_name( \DOMNode $node ) {
+		#var_dump( __METHOD__, $node->textContent, $node->getAttribute('class') );
+		$layout_classes = [
+			'is-layout-flow' => 'default',
+			'is-layout-constrained' => 'constrained',
+			'is-layout-flex' => 'flex',
+			'is-layout-grid' => 'grid'
+		];
+		foreach ( $layout_classes as $class => $name ) {
+			if ( self::node_has_class( $node, $class ) ) {
+				#var_dump( __METHOD__, $class, $name );
+				return $name;
+			}
+		}
+		#var_dump( __METHOD__, "no layout found" );
+		return false;
+	}
+
+
+	/**
+	 * Handle some div blocks
+	 */
+	public function div( \DOMNode $node ) {
+
+		// FIXME: this is incomplete and should go in a helper function so it can be reused for other block types.
+		$atts = [];
+		if ( $layout = static::get_node_layout_name( $node ) ) {
+			#var_dump( "got layout", $layout );
+			$atts['layout'] = [ 'type' => $layout ];
+		}
+		if ( static::node_has_class( $node, 'alignwide' ) ) {
+			$atts['align'] = 'wide';
+		}
+		if ( static::node_has_class( $node, 'alignfull' ) ) {
+			$atts['align'] = 'full';
+		}
+		if ( static::node_has_class( $node, 'has-medium-font-size' ) ) {
+			$atts['fontSize'] = 'medium';
+		}
+		if ( static::node_has_class( $node, 'wp-block-columns' ) ) {
+			$node->removeAttribute('style');
+			$content = static::get_node_html( $node );
+			#var_dump( "core/columns", $atts, $node->nodeName ); flush(); ob_flush();
+			$block = new Block( 'core/columns', $atts, $content );
+			#var_dump( $block );
+			return $block;
+		} elseif ( static::node_has_class( $node, 'wp-block-column' ) ) {
+			$node->removeAttribute('style');
+			$content = static::get_node_html( $node );
+			#var_dump( "core/column", $atts, $node->nodeName ); flush(); ob_flush();
+			$block = new Block( 'core/column', $atts, $content );
+			#var_dump( $block );
+			return $block;
+		}
+
+		// Default should leave the HTML as-is.
+		return static::get_node_html( $node );
+	}
+
+	/**
+	 * A null handler for <body> tags, to work around an extraneous <body> tag in the DOM.
+	 */
+	public function body( \DOMNode $node ) {
+		$content = [];
+		foreach ( $node->childNodes as $child_node ) {
+			$content[] = static::get_node_html( $child_node );
+		}
+		return implode( "\n", $content );
+	}
+
+	protected function h( \DOMNode $node ): ?Block {
+		// Remove style attributes to prevent block validation errors.
+		$node->removeAttribute( 'style' );
+		return parent::h( $node );
+	}
+
+	protected function figure( \DOMNode $node ): ?Block {
+		// Must contain an img tag.
+		if ( ! $node->hasChildNodes() ) {
+			return null;
+		}
+		if ( 'img' !== $node->firstChild->nodeName ) {
+			return null;
+		}
+
+		// Must also be a block
+		if ( ! static::node_has_class( $node, 'wp-block-image' ) ) {
+			return null;
+		}
+
+		// Remove style attributes to prevent block validation errors.
+		$node->removeAttribute( 'style' );
+		$img = $node->firstChild;
+		// Find the img ID if set
+		$img_id = null;
+		if ( preg_match( '/wp-image-(\d+)/', $img->getAttribute( 'class' ), $matches ) ) {
+			$img_id = intval( $matches[1] );
+		}
+		// Remove most of the img attributes since they'll be handled by the block.
+		$img->removeAttribute( 'style' );
+		$img->removeAttribute( 'width' );
+		$img->removeAttribute( 'height' );
+		$img->removeAttribute( 'sizes' );
+		$img->removeAttribute( 'srcset' );
+
+		$atts = [];
+		if ( $img_id ) {
+			$atts['id'] = $img_id;
+		}
+		if ( static::node_has_class( $node, 'size-full' ) ) {
+			$atts['sizeSlug'] = 'full';
+		} elseif ( static::node_has_class( $node, 'size-large' ) ) {
+			$atts['sizeSlug'] = 'large';
+		} elseif ( static::node_has_class( $node, 'size-medium' ) ) {
+			$atts['sizeSlug'] = 'medium';
+		} elseif ( static::node_has_class( $node, 'size-thumbnail' ) ) {
+			$atts['sizeSlug'] = 'thumbnail';
+		}
+		// FIXME: handle linkDestination if <a> tag is present?
+
+		$content = static::get_node_html( $node );
+		$block = new Block( 'core/image', $atts, $content );
+		return $block;
+	}
+
+	// Parent class uses p for many inline blocks, so we need to override it.
+	function p( \DOMNode $node ): ?Block {
+		if ( 'p' === $node->nodeName ) {
+			return parent::p( $node );
+		}
+
+		// Default should leave the HTML as-is.
+		return new Block( null, [], static::get_node_html( $node ) );
+	}
+
+	function html( \DOMNode $node ): ?Block {
+		#var_dump( "html", $node->nodeName );
+
+		$ignore = [
+			'a',        // Anchor element
+			'abbr',     // Abbreviation
+			'b',        // Bold text
+			'bdi',      // Bi-directional Isolation
+			'bdo',      // Bi-directional Override
+			'br',       // Line Break
+			'cite',     // Citation
+			'code',     // Code element
+			'data',     // Add machine-readable translation
+			'dfn',      // Definition element
+			'em',       // Emphasis
+			'i',        // Italic
+			'img',      // Image
+			'input',    // Input field
+			'kbd',      // Keyboard input
+			'label',    // Label for a form element
+			'li',       // List item
+			'mark',     // Marked text
+			'q',        // Inline quotation
+			'rp',       // For ruby annotations (fallback parentheses)
+			'rt',       // Ruby text
+			'rtc',      // Ruby text container
+			'ruby',     // Ruby annotation
+			's',        // Strikethrough text
+			'samp',     // Sample output from a computer program
+			'small',    // Small text
+			'span',     // Generic inline container
+			'strong',   // Strong importance
+			'sub',      // Subscript
+			'sup',      // Superscript
+			'time',     // Date/time
+			'u',        // Underline
+			'var',      // Variable
+			'wbr'       // Word break opportunity
+		];
+
+		if ( in_array( $node->nodeName, $ignore ) ) {
+			#return static::get_node_html( $node );
+			return new Block( null, [], static::get_node_html( $node ) );
+		}
+
+		// Default should leave the HTML as-is.
+		return parent::html( $node );
+	}
+
+}

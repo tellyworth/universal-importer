@@ -1,0 +1,12 @@
+<!-- wp:paragraph -->
+<p style="background-color:#eeeeee" class="has-background"><em>Organizers note:<span style="color: red;text-decoration: underline">with red text</span></em></p>
+<!-- /wp:paragraph -->
+<!-- wp:paragraph -->
+<p><span style="color: red;text-decoration: underline">WordCamp YourCityName</span></p>
+<!-- /wp:paragraph -->
+<!-- wp:paragraph -->
+<p><span style="color: red;text-decoration: underline">WordCamp YourCityName<span style="color: red;text-decoration: underline">DATE(S)</span><span style="color: red;text-decoration: underline">LOCATION</span></span></p>
+<!-- /wp:paragraph -->
+<!-- wp:paragraph -->
+<p><span style="color: red;text-decoration: underline">Subscribe using the form in the sidebar</span></p>
+<!-- /wp:paragraph -->

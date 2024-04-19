@@ -1,0 +1,96 @@
+<!-- wp:paragraph -->
+<p class="has-background" style="background-color:#eeeeee"><em>Organizers note:<a href="http://geekfeminism.wikia.com/wiki/Conference_anti-harassment/Policy">anti-harassment policy.</a></em></p>
+<!-- /wp:paragraph -->
+<!-- wp:paragraph -->
+<p class="has-background" style="background-color:#eeeeee"><a href="http://geekfeminism.wikia.com/wiki/Conference_anti-harassment/Responding_to_reports">how to take a harassment report</a></p>
+<!-- /wp:paragraph -->
+<!-- wp:paragraph -->
+<p class="has-background" style="background-color:#eeeeee"><span style="color: red;text-decoration: underline">with red text.</span></p>
+<!-- /wp:paragraph -->
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">1. Purpose</h3>
+<!-- /wp:heading -->
+<!-- wp:paragraph -->
+<p>WordCamp Buffalo believes our community should be truly open for everyone. As such, we are committed to providing a friendly, safe and welcoming environment for all, regardless of gender, sexual orientation, disability, ethnicity, religion, age, caste, social class, preferred operating system, programming language, or text editor, among other identifying characteristics.</p>
+<!-- /wp:paragraph -->
+<!-- wp:paragraph -->
+<p>This code of conduct outlines our expectations for participant behavior as well as the consequences for unacceptable behavior.</p>
+<!-- /wp:paragraph -->
+<!-- wp:paragraph -->
+<p>We invite all sponsors, volunteers, speakers, attendees, and other participants to help us realize a safe and positive conference experience for everyone.</p>
+<!-- /wp:paragraph -->
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">2. Open Source Citizenship</h3>
+<!-- /wp:heading -->
+<!-- wp:paragraph -->
+<p>A supplemental goal of this code of conduct is to increase open source citizenship by encouraging participants to recognize and strengthen the relationships between what we do and the community at large.</p>
+<!-- /wp:paragraph -->
+<!-- wp:paragraph -->
+<p>In service of this goal, WordCamp Buffalo organizers will be taking nominations for exemplary citizens throughout the event and will recognize select participants after the conference on the website.</p>
+<!-- /wp:paragraph -->
+<!-- wp:paragraph -->
+<p>If you see someone who is making an extra effort to ensure our community is welcoming, friendly, and encourages all participants to contribute to the fullest extent, we want to know.</p>
+<!-- /wp:paragraph -->
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">3. Expected Behavior</h3>
+<!-- /wp:heading -->
+<!-- wp:list -->
+<ul><li>Be considerate, respectful, and collaborative.</li><li>Refrain from demeaning, discriminatory or harassing behavior and speech.</li><li>Be mindful of your surroundings and of your fellow participants. Alert conference organizers if you notice a dangerous situation or someone in distress.</li><li>Participate in an authentic and active way. In doing so, you help to create WordCamp Buffalo and make it your own.</li></ul>
+<!-- /wp:list -->
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">4. Unacceptable Behavior</h3>
+<!-- /wp:heading -->
+<!-- wp:paragraph -->
+<p>Unacceptable behaviors include: intimidating, harassing, abusive, discriminatory, derogatory or demeaning conduct by any attendees of WordCamp Buffalo and related events. All WordCamp Buffalo venues may be shared with members of the public; please be respectful to all patrons of these locations.</p>
+<!-- /wp:paragraph -->
+<!-- wp:paragraph -->
+<p>Harassment includes: offensive verbal comments related to gender, sexual orientation, race, religion, disability; inappropriate use of nudity and/or sexual images in public spaces (including presentation slides); deliberate intimidation, stalking or following; harassing photography or recording; sustained disruption of talks or other events; inappropriate physical contact, and unwelcome sexual attention.</p>
+<!-- /wp:paragraph -->
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">5. Consequences Of Unacceptable Behavior</h3>
+<!-- /wp:heading -->
+<!-- wp:paragraph -->
+<p>Unacceptable behavior will not be tolerated whether by other attendees, organizers, venue staff, sponsors, or other patrons of WordCamp Buffalo venues.</p>
+<!-- /wp:paragraph -->
+<!-- wp:paragraph -->
+<p>Anyone asked to stop unacceptable behavior is expected to comply immediately.</p>
+<!-- /wp:paragraph -->
+<!-- wp:paragraph -->
+<p>If a participant engages in unacceptable behavior, the conference organizers may take any action they deem appropriate, up to and including expulsion from the conference without warning or refund.</p>
+<!-- /wp:paragraph -->
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">6. What To Do If You Witness Or Are Subject To Unacceptable Behavior</h3>
+<!-- /wp:heading -->
+<!-- wp:paragraph -->
+<p>If you are subject to unacceptable behavior, notice that someone else is being subject to unacceptable behavior, or have any other concerns, please notify a conference organizer as soon as possible.</p>
+<!-- /wp:paragraph -->
+<!-- wp:paragraph -->
+<p>The WordCamp Buffalo team will be available to help participants contact venue security or local law enforcement, to provide escorts, or to otherwise assist those experiencing unacceptable behavior to feel safe for the duration of the conference. Any volunteer can connect you with a conference organizer. You can also come to the special registration desk in the lobby and ask for the organizers.</p>
+<!-- /wp:paragraph -->
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">7. Scope</h3>
+<!-- /wp:heading -->
+<!-- wp:paragraph -->
+<p>We expect all conference participants (sponsors, volunteers, speakers, attendees, and other guests) to abide by this code of conduct at all conference venues and conference-related social events.</p>
+<!-- /wp:paragraph -->
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">8. Contact Information</h3>
+<!-- /wp:heading -->
+<!-- wp:paragraph -->
+<p><a href="https://www.facebook.com/WordCampBuffalo/" data-type="link" data-id="https://www.facebook.com/WordCampBuffalo/" target="_blank" rel="noreferrer noopener">Facebook</a><a href="https://buffalo.wordcamp.org/2024/contact/" data-type="page" data-id="17">Contact</a></p>
+<!-- /wp:paragraph -->
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">9. License And Attribution</h3>
+<!-- /wp:heading -->
+<!-- wp:paragraph -->
+<p><a href="http://web.archive.org/web/20191206083557/http://opensourcebridge.org/about/code-of-conduct/">Open Source Bridge 2018 [archived]</a><a href="http://creativecommons.org/licenses/by-sa/3.0/">Creative Commons Attribution-ShareAlike</a></p>
+<!-- /wp:paragraph -->
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">Statement about Socials or Supplemental Events (where applicable)</h3>
+<!-- /wp:heading -->
+<!-- wp:paragraph -->
+<p>Social and supplemental events are intended to provide networking and additional educational opportunities, as well as an opportunity to unwind after a full WordCamp. They should also be places where attendees can feel safe and secure.</p>
+<!-- /wp:paragraph -->
+<!-- wp:paragraph -->
+<p><a href="mailto:report@wordcamp.org">report@wordcamp.org</a></p>
+<!-- /wp:paragraph -->

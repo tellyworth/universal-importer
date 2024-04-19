@@ -1,9 +1,15 @@
 {
   "dependencies": {
-    "@wp-now/wp-now": "^0.1.66"
+    "@wp-now/wp-now": "^0.1.70"
+  },
+  "bin": {
+    "scrape-site": "./bin/scrape-site.js"
   },
   "scripts": {
-		"wp-now": "(cd source/wp-content && wp-now start --blueprint=../../blueprint.json --reset)",
-    "test": "wp-now php ./vendor/bin/phpunit"
-	}
+    "wp-now-import": "wp-now start --php=8.1 --blueprint=blueprint-import.json --reset",
+    "wp-now": "wp-now start --php=8.1",
+    "cli": "wp-now cli",
+    "test": "wp-now php --php=8.1 -- ./vendor/bin/phpunit --stderr",
+    "scrape-site": "node ./bin/scrape-site.js"
+  }
 }
