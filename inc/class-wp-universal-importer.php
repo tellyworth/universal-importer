@@ -57,7 +57,7 @@ class WP_Universal_Importer extends WP_Importer {
 		?>
 		<form method="post">
 			<p><?php _e('Enter the URL of the source to import from:', 'my-custom-importer'); ?></p>
-			<input type="url" name="source_url" value="" placeholder="https://boulder.wordcamp.org/2024/" />
+			<input type="url" name="source_url" value="" placeholder="https://buffalo.wordcamp.org/2024/" />
 			<input type="submit" name="submit" value="<?php esc_attr_e('Import', 'my-custom-importer'); ?>">
 		</form>
 		<?php
