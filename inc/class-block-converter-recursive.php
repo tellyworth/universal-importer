@@ -30,7 +30,6 @@ class Block_Converter_Recursive extends Block_Converter {
 				continue;
 			}
 
-			#var_dump( "content child node", $node->nodeName, $node->getAttribute('class') );
 			$html[] = $this->convert_recursive( $content->item( 0 ) );
 
 		}
@@ -99,9 +98,11 @@ class Block_Converter_Recursive extends Block_Converter {
 				$inner_html[] = $this->convert_recursive( $child_node );
 			}
 
+			$str_inner_html = implode( "\n", $inner_html );
+
 			// FIXME: it would be much better to traverse the DOM rather than using inner HTML strings, but this will do for now.
-			if ( ! empty( $inner_html ) ) {
-				$this->set_inner_html( $node, implode( "\n", $inner_html ) );
+			if ( $str_inner_html ) {
+				$this->set_inner_html( $node, $str_inner_html );
 			}
 		}
 
@@ -157,6 +158,9 @@ class Block_Converter_Recursive extends Block_Converter {
 
 
 	static function node_has_class( \DOMNode $node, $class ) {
+		if ( !method_exists( $node, 'getAttribute' ) ) {
+			return false;
+		}
 		return in_array( $class, explode( ' ', $node->getAttribute( 'class' ) ) );
 	}
 
@@ -183,11 +187,6 @@ class Block_Converter_Recursive extends Block_Converter {
 	 * Handle some div blocks
 	 */
 	public function div( \DOMNode $node ) {
-
-		// Bail early if the node is empty; it's not a block so can be left as-is.
-		if ( empty( $node->textContent ) && empty( $node->childNodes ) ) {
-			return null;
-		}
 
 		// FIXME: this is incomplete and should go in a helper function so it can be reused for other block types.
 		$atts = [];
@@ -220,7 +219,8 @@ class Block_Converter_Recursive extends Block_Converter {
 			return $block;
 		}
 
-		return null; // Default
+		// Default should leave the HTML as-is.
+		return static::get_node_html( $node );
 	}
 
 	/**
@@ -231,7 +231,7 @@ class Block_Converter_Recursive extends Block_Converter {
 		foreach ( $node->childNodes as $child_node ) {
 			$content[] = static::get_node_html( $child_node );
 		}
-		return implode( "\n", $content );;
+		return implode( "\n", $content );
 	}
 
 	protected function h( \DOMNode $node ): ?Block {
@@ -296,7 +296,56 @@ class Block_Converter_Recursive extends Block_Converter {
 		}
 
 		// Default should leave the HTML as-is.
-		return null;
+		return new Block( null, [], static::get_node_html( $node ) );
+	}
+
+	function html( \DOMNode $node ): ?Block {
+		#var_dump( "html", $node->nodeName );
+
+		$ignore = [
+			'a',        // Anchor element
+			'abbr',     // Abbreviation
+			'b',        // Bold text
+			'bdi',      // Bi-directional Isolation
+			'bdo',      // Bi-directional Override
+			'br',       // Line Break
+			'cite',     // Citation
+			'code',     // Code element
+			'data',     // Add machine-readable translation
+			'dfn',      // Definition element
+			'em',       // Emphasis
+			'i',        // Italic
+			'img',      // Image
+			'input',    // Input field
+			'kbd',      // Keyboard input
+			'label',    // Label for a form element
+			'li',       // List item
+			'mark',     // Marked text
+			'q',        // Inline quotation
+			'rp',       // For ruby annotations (fallback parentheses)
+			'rt',       // Ruby text
+			'rtc',      // Ruby text container
+			'ruby',     // Ruby annotation
+			's',        // Strikethrough text
+			'samp',     // Sample output from a computer program
+			'small',    // Small text
+			'span',     // Generic inline container
+			'strong',   // Strong importance
+			'sub',      // Subscript
+			'sup',      // Superscript
+			'time',     // Date/time
+			'u',        // Underline
+			'var',      // Variable
+			'wbr'       // Word break opportunity
+		];
+
+		if ( in_array( $node->nodeName, $ignore ) ) {
+			#return static::get_node_html( $node );
+			return new Block( null, [], static::get_node_html( $node ) );
+		}
+
+		// Default should leave the HTML as-is.
+		return parent::html( $node );
 	}
 
 }

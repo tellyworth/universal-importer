@@ -10,3 +10,11 @@
 <!-- wp:heading {"level":2} -->
 <h2 class="wp-block-heading">Schedule</h2>
 <!-- /wp:heading -->
+<div class="wp-block-wordcamp-schedule alignwide is-loading" data-attributes='{"__isStylesPreview":false,"align":"wide","chooseSpecificDays":false,"chosenDays":[],"chooseSpecificTracks":false,"chosenTrackIds":[],"showCategories":true,"useClientTimezone":false}'>
+	Loading…</div>
+<div class="email-form fav-session-email-form-hide"><!-- wp:html --><!-- Tab links --><!-- /wp:html --><div class="fav-session-share-tab"><div class="fav-session-tablinks" id="fav-session-btn-email">
+					Email				<div class="fav-session-tablinks" id="fav-session-btn-link">
+				Link			</div><div class="fav-session-tablinks" id="fav-session-btn-print">
+				Print			</div></div></div><!-- wp:html --><!-- Tab content --><!-- /wp:html --><div id="fav-session-tab-email" class="fav-session-share-tabcontent"><div id="fav-session-email-form"><!-- wp:html --><form id="fav-sessions-form"><input type="text" name="email_address" id="fav-sessions-email-address" placeholder="me@protonmail.com"></form><!-- /wp:html --><div class="fav-session-email-wait-spinner"></div><div class="fav-session-email-result"></div></div></div><div id="fav-session-tab-link" class="fav-session-share-tabcontent"><a id="fav-sessions-link" href=""></a></div><div id="fav-session-tab-print" class="fav-session-share-tabcontent"><!-- wp:html --><button id="fav-session-print">
+				Print favorite sessions			</button><!-- /wp:html --></div></div>
+<a class="show-email-form" href="javascript:"><span class="dashicons dashicons-star-filled"><span class="dashicons dashicons-email-alt"></span></span></a>

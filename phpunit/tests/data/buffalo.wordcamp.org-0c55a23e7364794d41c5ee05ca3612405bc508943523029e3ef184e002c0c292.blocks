@@ -1,11 +1,11 @@
 <!-- wp:paragraph -->
-<p class="has-background" style="background-color:#eeeeee"></p>
+<p class="has-background" style="background-color:#eeeeee"><em>Organizers note:<a href="http://geekfeminism.wikia.com/wiki/Conference_anti-harassment/Policy">anti-harassment policy.</a></em></p>
 <!-- /wp:paragraph -->
 <!-- wp:paragraph -->
-<p class="has-background" style="background-color:#eeeeee">We also recommend the organizing team read this article on <a href="http://geekfeminism.wikia.com/wiki/Conference_anti-harassment/Responding_to_reports">how to take a harassment report</a></p>
+<p class="has-background" style="background-color:#eeeeee"><a href="http://geekfeminism.wikia.com/wiki/Conference_anti-harassment/Responding_to_reports">how to take a harassment report</a></p>
 <!-- /wp:paragraph -->
 <!-- wp:paragraph -->
-<p class="has-background" style="background-color:#eeeeee">Please update the portions <span style="color: red;text-decoration: underline">with red text.</span> To remove the red underline formatting, click the arrow in the toolbar called “more rich text controls,” and toggle off the underline.</p>
+<p class="has-background" style="background-color:#eeeeee"><span style="color: red;text-decoration: underline">with red text.</span></p>
 <!-- /wp:paragraph -->
 <!-- wp:heading {"level":3} -->
 <h3 class="wp-block-heading">1. Purpose</h3>
@@ -35,7 +35,7 @@
 <h3 class="wp-block-heading">3. Expected Behavior</h3>
 <!-- /wp:heading -->
 <!-- wp:list -->
-<ul><!-- wp:html --><li>Be considerate, respectful, and collaborative.</li><!-- /wp:html --><!-- wp:html --><li>Refrain from demeaning, discriminatory or harassing behavior and speech.</li><!-- /wp:html --><!-- wp:html --><li>Be mindful of your surroundings and of your fellow participants. Alert conference organizers if you notice a dangerous situation or someone in distress.</li><!-- /wp:html --><!-- wp:html --><li>Participate in an authentic and active way. In doing so, you help to create WordCamp Buffalo and make it your own.</li><!-- /wp:html --></ul>
+<ul><li>Be considerate, respectful, and collaborative.</li><li>Refrain from demeaning, discriminatory or harassing behavior and speech.</li><li>Be mindful of your surroundings and of your fellow participants. Alert conference organizers if you notice a dangerous situation or someone in distress.</li><li>Participate in an authentic and active way. In doing so, you help to create WordCamp Buffalo and make it your own.</li></ul>
 <!-- /wp:list -->
 <!-- wp:heading {"level":3} -->
 <h3 class="wp-block-heading">4. Unacceptable Behavior</h3>
@@ -76,9 +76,15 @@
 <!-- wp:heading {"level":3} -->
 <h3 class="wp-block-heading">8. Contact Information</h3>
 <!-- /wp:heading -->
+<!-- wp:paragraph -->
+<p><a href="https://www.facebook.com/WordCampBuffalo/" data-type="link" data-id="https://www.facebook.com/WordCampBuffalo/" target="_blank" rel="noreferrer noopener">Facebook</a><a href="https://buffalo.wordcamp.org/2024/contact/" data-type="page" data-id="17">Contact</a></p>
+<!-- /wp:paragraph -->
 <!-- wp:heading {"level":3} -->
 <h3 class="wp-block-heading">9. License And Attribution</h3>
 <!-- /wp:heading -->
+<!-- wp:paragraph -->
+<p><a href="http://web.archive.org/web/20191206083557/http://opensourcebridge.org/about/code-of-conduct/">Open Source Bridge 2018 [archived]</a><a href="http://creativecommons.org/licenses/by-sa/3.0/">Creative Commons Attribution-ShareAlike</a></p>
+<!-- /wp:paragraph -->
 <!-- wp:heading {"level":3} -->
 <h3 class="wp-block-heading">Statement about Socials or Supplemental Events (where applicable)</h3>
 <!-- /wp:heading -->
@@ -86,5 +92,5 @@
 <p>Social and supplemental events are intended to provide networking and additional educational opportunities, as well as an opportunity to unwind after a full WordCamp. They should also be places where attendees can feel safe and secure.</p>
 <!-- /wp:paragraph -->
 <!-- wp:paragraph -->
-<p>We want you to enjoy yourself at these events, and we want you to do so safely. If you experience a Code of Conduct violation, see a violation, are concerned about the well-being, safety or behavior of another attendee, or have a general question (we understand that violations are not always obvious!) contact us immediately by notifying a WordCamp organizer or emailing <a href="mailto:report@wordcamp.org">report@wordcamp.org</a>. For in-person events, if you need help or are unable to comfortably or safely remove yourself from a situation you do not want to be in, organizers will prioritize assisting you immediately and discretely. Some examples are: not feeling well; your transportation arrangements fall through; you are intoxicated, you are alone or with someone you do not trust, you are overwhelmed, you have experienced or witnessed a Code of Conduct violation. Please ask any nearby event volunteer or organizer to help you.</p>
+<p><a href="mailto:report@wordcamp.org">report@wordcamp.org</a></p>
 <!-- /wp:paragraph -->
