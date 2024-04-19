@@ -99,7 +99,7 @@ class PageTraverser {
 				return 'page';
 			}
 			foreach ( $classes as $class ) {
-				if ( preg_match( '/([-\w+])-template-default/', $class, $matches ) ) {
+				if ( preg_match( '/([-\w]+)-template-default/', $class, $matches ) ) {
 					return $matches[1];
 				}
 			}
