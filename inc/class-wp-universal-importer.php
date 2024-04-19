@@ -24,6 +24,10 @@ class WP_Universal_Importer extends WP_Importer {
 		);
 	}
 	public function dispatch() {
+		// Crude progress output
+		ob_flush(); flush();
+		ob_implicit_flush( true );
+
 		echo '<div class="wrap">';
 		echo '<h2>' . __('My Custom Importer', 'my-custom-importer') . '</h2>';
 
@@ -31,7 +35,7 @@ class WP_Universal_Importer extends WP_Importer {
 		if (isset($_POST['submit']) && !empty($_POST['source_url'])) {
 			$url = esc_url_raw($_POST['source_url']);
 			$site_indexer = SiteIndexer::instance();
-			$sitemaps = $site_indexer->get_sitemaps( 'https://buffalo.wordcamp.org/2024/' );
+			$sitemaps = $site_indexer->get_sitemaps( $_POST['source_url'] );
 			if ( empty( $sitemaps ) ) {
 				echo '<p>No sitemaps found at ' . esc_html($url) . '</p>';
 			} elseif ( empty( $site_indexer->get_urls() ) ) {
@@ -60,9 +64,6 @@ class WP_Universal_Importer extends WP_Importer {
 	}
 
 	private function perform_import($url) {
-		// Crude progress output
-		ob_flush(); flush();
-		ob_implicit_flush( true );
 		echo '<p>Starting import from: ' . esc_html($url) . '</p>';
 
 		$universal_importer = Universal_Importer::instance();
