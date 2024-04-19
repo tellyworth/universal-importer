@@ -56,7 +56,7 @@ class Universal_Importer {
 				$blocks = $html_transformer->transform( $this->last_page_content );
 
 				if ( $handler && is_callable( $handler ) ) {
-					call_user_func( $handler, $url, $blocks );
+					call_user_func( $handler, $url, $blocks, $page_traverser );
 				}
 
 			}

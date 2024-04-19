@@ -27,8 +27,6 @@ class WP_Universal_Importer extends WP_Importer {
 		echo '<div class="wrap">';
 		echo '<h2>' . __('My Custom Importer', 'my-custom-importer') . '</h2>';
 
-		var_dump( $_POST );
-
 		// Check if the form was submitted
 		if (isset($_POST['submit']) && !empty($_POST['source_url'])) {
 			$url = esc_url_raw($_POST['source_url']);
@@ -53,20 +51,26 @@ class WP_Universal_Importer extends WP_Importer {
 	}
 
 	private function perform_import($url) {
-		// Your import logic based on the URL
+		// Crude progress output
+		ob_flush(); flush();
+		ob_implicit_flush( true );
 		echo '<p>Starting import from: ' . esc_html($url) . '</p>';
 
 		$universal_importer = Universal_Importer::instance();
 		$universal_importer->import( $url, array( $this, 'import_page' ) );
 	}
 
-	public function import_page( $url, $blocks ) {
-		echo '<p>Importing page: ' . esc_html($url) . '</p>';
+	public function import_page( $url, $blocks, $page ) {
+		echo '<p>Importing ' . $page->get_post_type() . ': ' . esc_html($url) . '</p>';
+
+		$page_slug = parse_url( $page->get_canonical(), PHP_URL_PATH );
 		wp_insert_post( array(
-			'post_title' => $url,
+			'import_id' => $page->get_post_id(),
+			'post_title' => $page->get_title(),
 			'post_content' => $blocks,
 			'post_status' => 'publish',
-			'post_type' => 'page',
+			'post_type' => $page->get_post_type(),
+			'post_name' => $page_slug,
 		) );
 	}
 
