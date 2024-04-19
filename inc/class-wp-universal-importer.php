@@ -32,7 +32,16 @@ class WP_Universal_Importer extends WP_Importer {
 			$url = esc_url_raw($_POST['source_url']);
 			$site_indexer = SiteIndexer::instance();
 			$sitemaps = $site_indexer->get_sitemaps( 'https://buffalo.wordcamp.org/2024/' );
-			$this->perform_import($url);
+			if ( empty( $sitemaps ) ) {
+				echo '<p>No sitemaps found at ' . esc_html($url) . '</p>';
+			} elseif ( empty( $site_indexer->get_urls() ) ) {
+				echo '<p>No URLs found at ' . esc_html($url) . '</p>';
+			} elseif ( count( $site_indexer->get_urls() ) > 100 ) {
+				echo '<p>More than 100 pages to import: ' . count( $site_indexer->get_urls() ) . ' URLs found at ' . esc_html($url) . '</p>';
+			} else {
+				// Start the import
+				$this->perform_import($url);
+			}
 		} else {
 			$this->greet();
 		}
