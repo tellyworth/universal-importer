@@ -237,10 +237,41 @@ class Block_Converter_Recursive extends Block_Converter {
 			$block = new Block( 'core/column', $atts, $content );
 			#var_dump( $block );
 			return $block;
+		} elseif ( static::node_has_class( $node, 'wp-block-buttons' ) ) {
+			$node->removeAttribute('style');
+			$content = static::get_node_html( $node );
+			// Basically just a wrapper div for individual button blocks
+			$block = new Block( 'core/buttons', $atts, $content );
+			return $block;
+		} elseif ( static::node_has_class( $node, 'wp-block-button__link') ) {
+			$node->removeAttribute('style');
+			$content = static::get_node_html( $node );
+			// Should contain a single <a> tag; does that need processing?
+			$block = new Block( 'core/button', $atts, $content );
+			return $block;
+
 		}
 
 		// Default should leave the HTML as-is.
 		return static::get_node_html( $node );
+	}
+
+	protected function button( \DOMNode $node ) {
+		if ( static::node_matches_class( $node, 'wp-block-button' ) ) {
+			if ( static::node_matches_class( $node->parentNode, 'wp-block-jetpack-button' ) ) {
+				// FIXME: bypass Jetpack forms for now.
+				return new Block( null, [], static::get_node_html( $node ) );
+			}
+		}
+		return self::html( $node );
+	}
+
+	protected function form ( \DOMNode $node ) {
+		if ( static::node_has_class( $node, 'wp-block-jetpack-form' ) || static::node_has_class( $node, 'wp-block-jetpack-contact-form' ) ) {
+				// FIXME: bypass Jetpack forms for now.
+				return new Block( null, [], static::get_node_html( $node ) );
+		}
+		return self::html( $node );
 	}
 
 	/**
@@ -361,7 +392,8 @@ class Block_Converter_Recursive extends Block_Converter {
 
 		if ( $block_type = self::node_matches_class( $node, 'wp-block-' ) ) {
 			$this->unhandled_blocks[ $block_type ] = $node;
-			trigger_error( "Unhandled block type: $block_type", E_USER_WARNING );
+			#var_dump( static::get_node_html( $node ) );
+			trigger_error( "Unhandled block type: <$node->nodeName> $block_type", E_USER_WARNING );
 		}
 
 		if ( in_array( $node->nodeName, $ignore ) ) {
