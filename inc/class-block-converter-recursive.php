@@ -4,6 +4,12 @@ use Alley\WP\Block_Converter\Block_Converter;
 use Alley\WP\Block_Converter\Block;
 
 class Block_Converter_Recursive extends Block_Converter {
+
+	/**
+	 * Temporary/testing: track unknown block types.
+	 */
+	public $unhandled_blocks = [];
+
 	/**
 	 * Convert HTML to Gutenberg blocks, recursing to handle nested blocks.
 	 *
@@ -162,6 +168,20 @@ class Block_Converter_Recursive extends Block_Converter {
 			return false;
 		}
 		return in_array( $class, explode( ' ', $node->getAttribute( 'class' ) ) );
+	}
+
+	static function node_matches_class( \DOMNode $node, $class_prefix ) {
+		if ( !method_exists( $node, 'getAttribute' ) ) {
+			return false;
+		}
+		$classes = explode( ' ', $node->getAttribute( 'class' ) );
+		foreach ( $classes as $class ) {
+			if ( str_starts_with( $class, $class_prefix ) ) {
+				return $class;
+			}
+		}
+
+		return false;
 	}
 
 	static function get_node_layout_name( \DOMNode $node ) {
@@ -339,10 +359,16 @@ class Block_Converter_Recursive extends Block_Converter {
 			'wbr'       // Word break opportunity
 		];
 
+		if ( $block_type = self::node_matches_class( $node, 'wp-block-' ) ) {
+			$this->unhandled_blocks[ $block_type ] = $node;
+			trigger_error( "Unhandled block type: $block_type", E_USER_WARNING );
+		}
+
 		if ( in_array( $node->nodeName, $ignore ) ) {
 			#return static::get_node_html( $node );
 			return new Block( null, [], static::get_node_html( $node ) );
 		}
+
 
 		// Default should leave the HTML as-is.
 		return parent::html( $node );
