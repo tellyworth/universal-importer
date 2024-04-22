@@ -1,6 +1,6 @@
 {
     "$schema": "https://playground.wordpress.net/blueprint-schema.json",
-    "landingPage": "wp-admin/admin.php?import=universal-importer",
+    "landingPage": "/wp-admin/import.php?import=universal-importer",
     "preferredVersions": {
         "php": "8.1",
         "wp": "latest"
