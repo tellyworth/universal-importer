@@ -249,11 +249,25 @@ class Block_Converter_Recursive extends Block_Converter {
 			// Should contain a single <a> tag; does that need processing?
 			$block = new Block( 'core/button', $atts, $content );
 			return $block;
-
+		} elseif ( static::node_has_class( $node, 'wp-block-spacer') ) {
+			$node->removeAttribute('style');
+			$content = static::get_node_html( $node );
+			$block = new Block( 'core/spacer', $atts, $content );
+			return $block;
+		} elseif ( static::node_has_class( $node, 'wp-block-group') ) {
+			$node->removeAttribute('style');
+			$content = static::get_node_html( $node );
+			// Group blocks seem to behave inconsistently depending on style. Sometimes the editor seems to replace them with something else like rows.
+			$block = new Block( 'core/group', $atts, $content );
+			return $block;
+		} elseif ( static::node_has_class( $node, 'wp-block-jetpack-button' ) ) {
+			// Jetpack button; bypass for now.
+			return new Block( null, [], static::get_node_html( $node ) );
 		}
 
 		// Default should leave the HTML as-is.
-		return static::get_node_html( $node );
+		#return static::get_node_html( $node );
+		return self::html( $node );
 	}
 
 	protected function button( \DOMNode $node ) {
