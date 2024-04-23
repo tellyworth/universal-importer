@@ -1,6 +1,7 @@
 <!-- wp:paragraph -->
 <p>Thank you for agreeing to be a Byte Sponsor. Please purchase your sponsorship below, which will also generate a ticket for our event.</p>
 <!-- /wp:paragraph -->
+<!-- wp:html -->
 <div id="tix"><!-- wp:html --><form action="https://buffalo.wordcamp.org/2024/byte-sponsor-ticket/?tix_action=attendee_info#tix" method="POST"><!-- wp:html --><table class="tix_tickets_table tix-tickets-list"><!-- wp:html --><thead><!-- wp:html --><tr><!-- wp:html --><th scope="col" class="tix-column-description">Description</th><!-- /wp:html --><!-- wp:html --><th scope="col" class="tix-column-price">Price</th><!-- /wp:html --><!-- wp:html --><th scope="col" class="tix-column-remaining">Remaining</th><!-- /wp:html --><!-- wp:html --><th scope="col" class="tix-column-quantity">
 								Quantity							</th><!-- /wp:html --></tr><!-- /wp:html --></thead><!-- /wp:html --><!-- wp:html --><tbody><!-- wp:html --><tr class="tix-ticket-573 "><!-- wp:html --><th class="tix-column-description" scope="row"><label for="tix-qty-573" class="tix-ticket-title">
 										Byte Sponsor									<span class="tix-ticket-excerpt">Byte Sponsors- $100 USD</span></label></th><!-- /wp:html --><!-- wp:html --><td class="tix-column-price">
@@ -17,4 +18,5 @@
 												document.getElementById( 'tix-coupon-input' ).focus();
 												return false;
 											};
-										<!-- /wp:html --></script></a><!-- wp:html --><!-- /wp:html --></td><!-- /wp:html --></tr><!-- /wp:html --></tbody><!-- /wp:html --></table><!-- /wp:html --><!-- wp:paragraph --><p><input type="submit" value="Register →" style="float: right; cursor: pointer;" class=""></p><!-- /wp:paragraph --></form><!-- /wp:html --></div>
+										<!-- /wp:html --></script></a><!-- wp:html --><!-- /wp:html --><!-- wp:html --><!-- /wp:html --></td><!-- /wp:html --></tr><!-- /wp:html --></tbody><!-- /wp:html --></table><!-- /wp:html --><!-- wp:paragraph --><p><input type="submit" value="Register →" style="float: right; cursor: pointer;" class=""></p><!-- /wp:paragraph --></form><!-- /wp:html --></div>
+<!-- /wp:html -->

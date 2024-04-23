@@ -7,4 +7,6 @@
 <!-- wp:paragraph -->
 <p>More than just a service provider, CANI Marketing Group is your collaborative partner. We prioritize open communication, fostering trust and understanding to help you achieve your digital marketing goals.</p>
 <!-- /wp:paragraph -->
-<div class="wp-block-buttons is-layout-flex wp-block-buttons-is-layout-flex"><div class="wp-block-button"><a class="wp-block-button__link has-custom-magenta-background-color has-background wp-element-button" href="https://canimarketinggroup.com" rel="nofollow">Learn More</a></div></div>
+<!-- wp:buttons {"layout":{"type":"flex"}} -->
+<div class="wp-block-buttons is-layout-flex wp-block-buttons-is-layout-flex"><!-- wp:button --><div class="wp-block-button"><a class="wp-block-button__link has-custom-magenta-background-color has-background wp-element-button" href="https://canimarketinggroup.com" rel="nofollow">Learn More</a></div><!-- /wp:button --></div>
+<!-- /wp:buttons -->

@@ -7,5 +7,9 @@
 <!-- wp:paragraph -->
 <p>Your company has something unique to offer the world. Building your community of evangelists and customers requires a cohesive, consistent messaging and communications strategy that goes beyond logos and taglines. Luminus helps you disrupt the status quo and break through the noise by creating a memorable identity through graphic design, photography, videography, messaging and more. We combine strategy, high performance websites, and optimized campaign creative to build measurable campaigns that reach, engage, inspire loyalty and compel action.</p>
 <!-- /wp:paragraph -->
-<div class="wp-block-buttons is-layout-flex wp-block-buttons-is-layout-flex"><div class="wp-block-button"><a class="wp-block-button__link wp-element-button" href="https://luminus.agency" target="_blank" rel="noreferrer noopener nofollow">Luminus Website</a></div></div>
-<div class="wp-block-buttons is-layout-flex wp-block-buttons-is-layout-flex"><div class="wp-block-button"><a class="wp-block-button__link wp-element-button" href="https://www.instagram.com/luminusagency" target="_blank" rel="noreferrer noopener nofollow">Luminus Instagram</a></div></div>
+<!-- wp:buttons {"layout":{"type":"flex"}} -->
+<div class="wp-block-buttons is-layout-flex wp-block-buttons-is-layout-flex"><!-- wp:button --><div class="wp-block-button"><a class="wp-block-button__link wp-element-button" href="https://luminus.agency" target="_blank" rel="noreferrer noopener nofollow">Luminus Website</a></div><!-- /wp:button --></div>
+<!-- /wp:buttons -->
+<!-- wp:buttons {"layout":{"type":"flex"}} -->
+<div class="wp-block-buttons is-layout-flex wp-block-buttons-is-layout-flex"><!-- wp:button --><div class="wp-block-button"><a class="wp-block-button__link wp-element-button" href="https://www.instagram.com/luminusagency" target="_blank" rel="noreferrer noopener nofollow">Luminus Instagram</a></div><!-- /wp:button --></div>
+<!-- /wp:buttons -->
