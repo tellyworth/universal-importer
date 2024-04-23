@@ -250,9 +250,8 @@ class Block_Converter_Recursive extends Block_Converter {
 			$block = new Block( 'core/button', $atts, $content );
 			return $block;
 		} elseif ( static::node_has_class( $node, 'wp-block-spacer') ) {
-			$node->removeAttribute('style');
-			$content = static::get_node_html( $node );
-			$block = new Block( 'core/spacer', $atts, $content );
+			// Ignore the inner content entirely.
+			$block = new Block( 'core/spacer', $atts, '' );
 			return $block;
 		} elseif ( static::node_has_class( $node, 'wp-block-group') ) {
 			$node->removeAttribute('style');
