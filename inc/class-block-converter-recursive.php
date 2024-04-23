@@ -472,6 +472,7 @@ class Block_Converter_Recursive extends Block_Converter {
 			'input',    // Input field
 			'kbd',      // Keyboard input
 			'label',    // Label for a form element
+			'li',       // List item
 			'mark',     // Marked text
 			'q',        // Inline quotation
 			'rp',       // For ruby annotations (fallback parentheses)
