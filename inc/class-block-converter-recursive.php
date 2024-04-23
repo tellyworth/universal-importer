@@ -434,6 +434,24 @@ class Block_Converter_Recursive extends Block_Converter {
 		return new Block( null, [], static::get_node_html( $node ) );
 	}
 
+	function ul( \DOMNode $node ): Block {
+		// A latest-posts block is similar to a template: we don't want any of the inner content.
+		if ( static::node_has_class( $node, 'wp-block-latest-posts__list' ) ) {
+			$atts = [];
+			if ( self::node_has_class( $node, 'is-grid' ) ) {
+				$atts['postLayout'] = 'grid';
+			}
+			// FIXME: share this code with div so we get other alignments etc.
+			if ( static::node_has_class( $node, 'alignfull' ) ) {
+				$atts['align'] = 'full';
+			}
+			return new Block( 'core/latest-posts', $atts, '' );
+		}
+
+		// Default should leave the HTML as-is.
+		return parent::ul( $node );
+	}
+
 	function html( \DOMNode $node ): ?Block {
 		#var_dump( "html", $node->nodeName );
 

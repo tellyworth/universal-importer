@@ -109,7 +109,9 @@ EOF;
 
 		// Should be left intact inside the html wrapper
 		$expected = <<<EOF
+<!-- wp:html -->
 <div style="" class="grunion-field-text-wrap grunion-field-wrap"><label for="g4-contactname" class="grunion-field-label text"><span class="grunion-label-required" aria-hidden="true">(required)</span><input type="text" name="g4-contactname" id="g4-contactname" value="" class="text  grunion-field" required aria-required="true"></label></div>
+<!-- /wp:html -->
 EOF;
 
 		$converter = new Block_Converter_Recursive( $html );
