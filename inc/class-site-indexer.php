@@ -48,7 +48,13 @@ class SiteIndexer {
 	 */
 	public function get_sitemaps( $url, $pages = [ 'robots.txt', 'wp-sitemap.xml', 'sitemap.xml', 'sitemap-index-1.xml' ] ) {
 		try {
+			// Reset data for a new request.
+			// This class probably shouldn't be a singleton, which would make this unnecessary.
+			$this->sitemaps = [];
+			$this->urls = [];
+
 			$parts = parse_url( $url );
+
 			// Queue up specific pages first
 			$urls = [];
 			foreach ( $pages as $page ) {
