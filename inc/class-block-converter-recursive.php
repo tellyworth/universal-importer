@@ -243,7 +243,7 @@ class Block_Converter_Recursive extends Block_Converter {
 			// Basically just a wrapper div for individual button blocks
 			$block = new Block( 'core/buttons', $atts, $content );
 			return $block;
-		} elseif ( static::node_has_class( $node, 'wp-block-button__link') ) {
+		} elseif ( static::node_has_class( $node, 'wp-block-button') || static::node_matches_class( $node, 'wp-block-button__') ) {
 			$node->removeAttribute('style');
 			$content = static::get_node_html( $node );
 			// Should contain a single <a> tag; does that need processing?
@@ -260,13 +260,47 @@ class Block_Converter_Recursive extends Block_Converter {
 			// Group blocks seem to behave inconsistently depending on style. Sometimes the editor seems to replace them with something else like rows.
 			$block = new Block( 'core/group', $atts, $content );
 			return $block;
-		} elseif ( static::node_has_class( $node, 'wp-block-jetpack-button' ) ) {
-			// Jetpack button; bypass for now.
+		} elseif ( static::node_matches_class( $node, 'wp-block-jetpack-' ) ) {
+			// Jetpack form/button; bypass for now.
 			return new Block( null, [], static::get_node_html( $node ) );
+		} elseif ( static::node_matches_class( $node, 'wp-block-wordcamp-' ) ) {
+			// WordCamp blocks; bypass for now.
+			return new Block( null, [], static::get_node_html( $node ) );
+		} elseif ( static::node_has_class( $node, 'wp-block-query' ) ) {
+			// Query block! This one requires us to look at the inner markup.
+			$node->removeAttribute('style');
+			$query_atts = [];
+			$xpath = new DOMXPath( $node->ownerDocument );
+			if ( $querypost = $xpath->query( '.wp-block-post', $node ) ) {
+				if ( $querypost->count() ) {
+					$query_atts['perPage'] = $querypost->count();
+				}
+				if ( $type = self::node_matches_class( $querypost->item(0), 'type-' ) ) {
+					$query_atts['postType'] = str_replace( 'type-', '', $type );
+				}
+				$atts['query'] = $query_atts;
+				// Inner content is a template, but we have a list of multiple instances.
+				// So we want to delete all but one, and let the remaining one be the template.
+				for ( $i = 1; $i < $querypost->count(); $i++ ) {
+					$querypost->item( $i )->parentNode->removeChild( $querypost->item( $i ) );
+				}
+			}
+			return new Block( 'core/query', $atts, static::get_node_html( $node ) );
 		}
 
 		// Default should leave the HTML as-is.
 		#return static::get_node_html( $node );
+		return self::html( $node );
+	}
+
+	protected function li( \DOMNode $node ) {
+		if ( static::node_has_class( $node, 'wp-block-post' ) ) {
+			$node->removeAttribute('style');
+			$content = static::get_node_html( $node );
+			$block = new Block( 'core/post-template', [], $content );
+			return $block;
+		}
+
 		return self::html( $node );
 	}
 
@@ -281,7 +315,7 @@ class Block_Converter_Recursive extends Block_Converter {
 	}
 
 	protected function form ( \DOMNode $node ) {
-		if ( static::node_has_class( $node, 'wp-block-jetpack-form' ) || static::node_has_class( $node, 'wp-block-jetpack-contact-form' ) ) {
+		if ( static::node_matches_class( $node, 'wp-block-jetpack-' ) ) {
 				// FIXME: bypass Jetpack forms for now.
 				return new Block( null, [], static::get_node_html( $node ) );
 		}
@@ -384,7 +418,6 @@ class Block_Converter_Recursive extends Block_Converter {
 			'input',    // Input field
 			'kbd',      // Keyboard input
 			'label',    // Label for a form element
-			'li',       // List item
 			'mark',     // Marked text
 			'q',        // Inline quotation
 			'rp',       // For ruby annotations (fallback parentheses)
