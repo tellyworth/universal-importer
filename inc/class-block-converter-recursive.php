@@ -353,6 +353,18 @@ class Block_Converter_Recursive extends Block_Converter {
 	}
 
 	protected function h( \DOMNode $node ): ?Block {
+		// A post-title block is a template; we don't want any of the inner content.
+		if ( static::node_has_class( $node, 'wp-block-post-title' ) ) {
+			// eg <!-- wp:post-title {"level":3,"isLink":true} /-->
+			$atts = [
+				'level' => absint( str_replace( 'h', '', $node->nodeName ) )
+			];
+			if ( $node->hasChildNodes && 'a' === $node->firstChild->nodeName ) {
+				$atts['isLink'] = true;
+			}
+			return new Block( 'core/post-title', $atts, '' );
+		}
+
 		// Remove style attributes to prevent block validation errors.
 		$node->removeAttribute( 'style' );
 		return parent::h( $node );
