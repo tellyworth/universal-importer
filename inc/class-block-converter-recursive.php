@@ -286,6 +286,25 @@ class Block_Converter_Recursive extends Block_Converter {
 				}
 			}
 			return new Block( 'core/query', $atts, static::get_node_html( $node ) );
+		} elseif ( static::node_has_class( $node, 'wp-block-post-content') ) {
+			// Template block; ignore the inner content entirely.
+			return new Block( 'core/post-content', [], '' );
+		} elseif ( static::node_has_class( $node, 'wp-block-post-date') ) {
+			// Template block; ignore the inner content entirely.
+			return new Block( 'core/post-date', [], '' );
+		} elseif ( static::node_has_class( $node, 'wp-block-post-excerpt') ) {
+			// Template block; ignore the inner content entirely.
+			return new Block( 'core/post-excerpt', [], '' );
+		} elseif ( static::node_has_class( $node, 'wp-block-post-author-name') ) {
+			// Template block; ignore the inner content entirely.
+			return new Block( 'core/post-author-name', [], '' );
+		} elseif ( static::node_has_class( $node, 'wp-block-post-terms') ) {
+			// Template block; ignore the inner content entirely.
+			return new Block( 'core/post-terms', [], '' );
+		} elseif ( static::node_has_class( $node, 'wp-block-template-part') ) {
+			// Treat this like a group block for now.
+			$content = static::get_node_html( $node );
+			return new Block( 'core/template-part', $atts, $content );
 		}
 
 		// Default should leave the HTML as-is.
@@ -340,6 +359,12 @@ class Block_Converter_Recursive extends Block_Converter {
 	}
 
 	protected function figure( \DOMNode $node ): ?Block {
+
+		// A post-featured-image block is a template; we don't want any of the inner content.
+		if ( static::node_has_class( $node, 'wp-block-post-featured-image' ) ) {
+			return new Block( 'core/post-featured-image', [], '' );
+		}
+
 		// Must contain an img tag.
 		if ( ! $node->hasChildNodes() ) {
 			return null;
