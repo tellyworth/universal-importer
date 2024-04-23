@@ -359,7 +359,7 @@ class Block_Converter_Recursive extends Block_Converter {
 			$atts = [
 				'level' => absint( str_replace( 'h', '', $node->nodeName ) )
 			];
-			if ( $node->hasChildNodes && 'a' === $node->firstChild->nodeName ) {
+			if ( $node->hasChildNodes() && 'a' === $node->firstChild->nodeName ) {
 				$atts['isLink'] = true;
 			}
 			return new Block( 'core/post-title', $atts, '' );
