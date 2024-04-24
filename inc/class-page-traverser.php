@@ -112,7 +112,7 @@ class PageTraverser {
 		if ( $body->count() ) {
 			$classes = explode( ' ', $body->item(0)->getAttribute('class') );
 			foreach ( $classes as $class ) {
-				if ( preg_match( '/postid-(\d+)/', $class, $matches ) ) {
+				if ( preg_match( '/(?:postid|pageid|page-id)-(\d+)/', $class, $matches ) ) {
 					return $matches[1];
 				}
 			}

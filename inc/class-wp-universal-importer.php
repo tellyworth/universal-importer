@@ -90,6 +90,16 @@ class WP_Universal_Importer extends WP_Importer {
 			'post_type' => $page->get_post_type(),
 			'post_name' => $page_slug,
 		) );
+
+		// Set the front page if this is the home page
+		// FIXME: should also/alternatively check if the URL matches the site root.
+		if ( $page->is_static_home_page() && $page->get_post_id() ) {
+			update_option( 'page_on_front', $page->get_post_id() );
+			update_option( 'show_on_front', 'page' );
+			echo '<p>Set ' . esc_html($url) . ' as the front page</p>';
+		}
+
+		flush();
 	}
 
 }
