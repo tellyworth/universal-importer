@@ -164,4 +164,14 @@ class PageTraverser {
 
 		return $urls;
 	}
+
+	public function replace_media_urls( $url_map ) {
+		$images = $this->get_xpath( '//img' );
+		foreach ( $images as $image ) {
+			$src = $image->getAttribute('src');
+			if ( isset( $url_map[ $src ] ) ) {
+				$image->setAttribute( 'src', $url_map[ $src ] );
+			}
+		}
+	}
 }
