@@ -33,9 +33,17 @@ class WP_Universal_Importer extends WP_Importer {
 
 		// Check if the form was submitted
 		if (isset($_POST['submit']) && !empty($_POST['source_url'])) {
-			$url = esc_url_raw($_POST['source_url']);
+			$url = esc_url_raw( trim( $_POST['source_url'] ) );
+			// Note: this is not really sufficient validation; unfortunately wp_http_validate_url() is misnamed and there is no core function fit for purpose.
+			$url = filter_var( $url, FILTER_VALIDATE_URL );
+
+			if ( ! $url ) {
+				echo '<p>Invalid URL: <code>' . esc_html( $_POST['source_url'] ) . '</code></p>';
+				$this->greet();
+				return;
+			}
 			$site_indexer = SiteIndexer::instance();
-			$sitemaps = $site_indexer->get_sitemaps( $_POST['source_url'] );
+			$sitemaps = $site_indexer->get_sitemaps( $url );
 			if ( empty( $sitemaps ) ) {
 				echo '<p>No sitemaps found at ' . esc_html($url) . '</p>';
 			} elseif ( empty( $site_indexer->get_urls() ) ) {
