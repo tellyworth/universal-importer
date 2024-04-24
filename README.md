@@ -60,7 +60,7 @@ npm run test
 * Only some Gutenberg blocks are handled correctly
 * Only some post types are handled correctly
 * Permalink scheme isn't matched correctly
-* Links and image/asset URLs are not yet rewritten to point to the new site
-* Images and other attachments are not yet imported
+* Links ~~and image/asset URL~~s are not yet rewritten to point to the new site
+* ~~Images and other attachments are not yet imported~~
 * Navigation and other template-parts are not yet imported (but could be!)
 * Can't run in Playground because CORS prevents crawling an external web site (could be fixed with a proxy)
