@@ -37,6 +37,8 @@ class WP_Universal_Importer extends WP_Importer {
 		echo '<div class="wrap">';
 		echo '<h2>' . __('My Custom Importer', 'my-custom-importer') . '</h2>';
 
+		// FIXME: need nonce checks for form handling
+
 		// Check if the form was submitted
 		if (isset($_POST['submit']) && !empty($_POST['source_url'])) {
 			$url = esc_url_raw( trim( $_POST['source_url'] ) );
@@ -57,8 +59,17 @@ class WP_Universal_Importer extends WP_Importer {
 			} elseif ( count( $site_indexer->get_urls() ) > 100 ) {
 				echo '<p>More than 100 pages to import: ' . count( $site_indexer->get_urls() ) . ' URLs found at ' . esc_html($url) . '</p>';
 			} else {
-				// Start the import
-				$this->perform_import($url);
+				if ( empty( $_POST['confirm'] ) ) {
+					echo '<p>Found ' . count( $site_indexer->get_urls() ) . ' pages to import from ' . esc_html($url) . '</p>';
+					echo '<form method="post">';
+					echo '<input type="hidden" name="source_url" value="' . esc_attr($url) . '" />';
+					echo '<input type="hidden" name="confirm" value="1" />';
+					echo '<input type="submit" name="submit" value="' . esc_attr__('Confirm Import', 'my-custom-importer') . '" />';
+					echo '</form>';
+				} else {
+					// Start the import
+					$this->perform_import($url);
+				}
 			}
 		} else {
 			$this->greet();
