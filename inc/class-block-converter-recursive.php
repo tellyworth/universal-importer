@@ -184,6 +184,21 @@ class Block_Converter_Recursive extends Block_Converter {
 		return false;
 	}
 
+	static function node_ancestor_has_class( \DOMNode $node, $class ) {
+		// Consider the node itself as an ancestor
+		if ( self::node_has_class( $node, $class ) ) {
+			return true;
+		}
+		$parent = $node->parentNode;
+		while ( $parent ) {
+			if ( self::node_has_class( $parent, $class ) ) {
+				return true;
+			}
+			$parent = $parent->parentNode;
+		}
+		return false;
+	}
+
 	static function get_node_layout_name( \DOMNode $node ) {
 		#var_dump( __METHOD__, $node->textContent, $node->getAttribute('class') );
 		$layout_classes = [
@@ -286,8 +301,12 @@ class Block_Converter_Recursive extends Block_Converter {
 			}
 			return new Block( 'core/query', $atts, static::get_node_html( $node ) );
 		} elseif ( static::node_has_class( $node, 'wp-block-post-content') ) {
-			// Template block; ignore the inner content entirely.
-			return new Block( 'core/post-content', [], '' );
+			// If we're within a query block, this is a template block; ignore the inner content entirely.
+			if ( static::node_ancestor_has_class( $node, 'wp-block-query' ) ) {
+				return new Block( 'core/post-content', [], '' );
+			}
+			// Otherwise just leave this as a div.
+			return new Block( null, [], static::get_node_html( $node ) );
 		} elseif ( static::node_has_class( $node, 'wp-block-post-date') ) {
 			// Template block; ignore the inner content entirely.
 			return new Block( 'core/post-date', [], '' );
