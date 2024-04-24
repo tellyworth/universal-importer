@@ -25,7 +25,10 @@ class WP_Universal_Importer extends WP_Importer {
 	}
 	public function dispatch() {
 		// Crude progress output
-		ob_flush(); flush();
+		while( ob_get_level() > 0 ) {
+			ob_end_flush();
+		}
+		flush();
 		ob_implicit_flush( true );
 
 		echo '<div class="wrap">';
