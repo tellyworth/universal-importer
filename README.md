@@ -23,6 +23,16 @@ Given a web site to import from, the plugin will crawl the site, and attempt to 
 
 **In its current state I recomment only running this plugin in `wp-now` for safety**
 
+Requirements:
+* npm
+* php 8.1 with composer
+
+To install php 8.1 on Macos:
+
+```sh
+brew install php@8.1
+```
+
 Usage:
 
 ```sh
@@ -38,6 +48,12 @@ This should run a fresh empty WP site in wp-now and open a browser window to htt
 If not, follow that link or open your wp-now site and visit wp-admin / Tools / Import / Universal Importer
 
 Enter the URL of a WordPress web site to import and click the button.
+
+Unit tests:
+
+```sh
+npm run test
+```
 
 ## Known issues
 

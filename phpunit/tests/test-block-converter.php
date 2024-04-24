@@ -109,7 +109,9 @@ EOF;
 
 		// Should be left intact inside the html wrapper
 		$expected = <<<EOF
+<!-- wp:html -->
 <div style="" class="grunion-field-text-wrap grunion-field-wrap"><label for="g4-contactname" class="grunion-field-label text"><span class="grunion-label-required" aria-hidden="true">(required)</span><input type="text" name="g4-contactname" id="g4-contactname" value="" class="text  grunion-field" required aria-required="true"></label></div>
+<!-- /wp:html -->
 EOF;
 
 		$converter = new Block_Converter_Recursive( $html );
@@ -118,6 +120,33 @@ EOF;
 		#var_dump( __METHOD__, $html, $blocks );ob_flush();flush();
 		$this->assertEquals( $expected, $blocks );
 
+	}
+
+	public function test_latest_posts_block() {
+		$html =<<<EOF
+		<ul class="wp-block-latest-posts__list has-dates has-author wp-block-latest-posts"><li><a class="wp-block-latest-posts__post-title" href="http://localhost:8881/2024-sponsor_level-global/">Global – WordCamp Sydney 2024</a><div class="wp-block-latest-posts__post-author">by admin</div><time datetime="2024-04-24T00:58:42+00:00" class="wp-block-latest-posts__post-date">April 24, 2024</time><div class="wp-block-latest-posts__post-excerpt">WPBeginner WPBeginnerfree WordPress video courses Whether you’re looking to learn how to build a WordPress website, decide which WordPress plugins to pick, or just learn the WordPress best practices to grow your website, WPBeginner’s free resources can help: WPBeginner Blog WPBeginner Solution Center WPBeginner Dictionary WPBeginner VideosWordPress 101WordPress SEO for Beginners WPBeginner Deals WPBeginner Tools… <a href="http://localhost:8881/2024-sponsor_level-global/" rel="noopener noreferrer">Read more<span class="screen-reader-text">: Global – WordCamp Sydney 2024</span></a></div></li>
+			<li><a class="wp-block-latest-posts__post-title" href="http://localhost:8881/2024-sponsor_level-event-sponsor/">Event Sponsor – WordCamp Sydney 2024</a><div class="wp-block-latest-posts__post-author">by admin</div><time datetime="2024-04-24T00:58:40+00:00" class="wp-block-latest-posts__post-date">April 24, 2024</time><div class="wp-block-latest-posts__post-excerpt">Linux Australia Linux AustraliaEverything Open</div></li>
+			<li><a class="wp-block-latest-posts__post-title" href="http://localhost:8881/2024-category-sponsorship/">Sponsorship – WordCamp Sydney 2024</a><div class="wp-block-latest-posts__post-author">by admin</div><time datetime="2024-04-24T00:58:38+00:00" class="wp-block-latest-posts__post-date">April 24, 2024</time><div class="wp-block-latest-posts__post-excerpt">Posted on23 April 202423 April 2024 Call for Sponsors</div></li>
+			<li><a class="wp-block-latest-posts__post-title" href="http://localhost:8881/2024-category-uncategorized/">Uncategorized – WordCamp Sydney 2024</a><div class="wp-block-latest-posts__post-author">by admin</div><time datetime="2024-04-24T00:58:36+00:00" class="wp-block-latest-posts__post-date">April 24, 2024</time><div class="wp-block-latest-posts__post-excerpt">Posted on10 April 202416 April 2024 Welcome to WordCamp Sydney, NSW, Australia We’re happy to announce that WordCamp Sydney is officially on the calendar! WordCamp Sydney will be held from 2 to 3 November 2024 at the University of Technology Sydney (UTS). Subscribe to email updates in the sidebar and stay updated on recent news.… <a href="http://localhost:8881/2024-category-uncategorized/" rel="noopener noreferrer">Read more<span class="screen-reader-text">: Uncategorized – WordCamp Sydney 2024</span></a></div></li>
+			<li><a class="wp-block-latest-posts__post-title" href="http://localhost:8881/2024-blog/">WordCamp Sydney 2024</a><div class="wp-block-latest-posts__post-author">by admin</div><time datetime="2024-04-24T00:57:57+00:00" class="wp-block-latest-posts__post-date">April 24, 2024</time><div class="wp-block-latest-posts__post-excerpt">Posted on23 April 202423 April 2024 Call for Sponsors Posted on10 April 202416 April 2024 Welcome to WordCamp Sydney, NSW, Australia We’re happy to announce that WordCamp Sydney is officially on the calendar! WordCamp Sydney will be held from 2 to 3 November 2024 at the University of Technology Sydney (UTS). Subscribe to email updates… <a href="http://localhost:8881/2024-blog/" rel="noopener noreferrer">Read more<span class="screen-reader-text">: WordCamp Sydney 2024</span></a></div></li>
+			<li><a class="wp-block-latest-posts__post-title" href="http://localhost:8881/2024-call-for-sponsors/">Call for Sponsors</a><div class="wp-block-latest-posts__post-author">by admin</div><time datetime="2024-04-24T00:57:35+00:00" class="wp-block-latest-posts__post-date">April 24, 2024</time><div class="wp-block-latest-posts__post-excerpt">Posted on23 April 202423 April 2024DeveloperWil Call for Sponsors</div></li>
+			<li><a class="wp-block-latest-posts__post-title" href="http://localhost:8881/2024-welcome-to-wordcamp-sydney-nsw-australia/">Welcome to WordCamp Sydney, NSW, Australia</a><div class="wp-block-latest-posts__post-author">by admin</div><time datetime="2024-04-24T00:57:33+00:00" class="wp-block-latest-posts__post-date">April 24, 2024</time><div class="wp-block-latest-posts__post-excerpt">Posted on10 April 202416 April 2024DeveloperWil Welcome to WordCamp Sydney, NSW, Australia</div></li>
+			<li><a class="wp-block-latest-posts__post-title" href="http://localhost:8881/hello-world/">Hello world!</a><div class="wp-block-latest-posts__post-author">by admin</div><time datetime="2024-04-24T00:53:06+00:00" class="wp-block-latest-posts__post-date">April 24, 2024</time><div class="wp-block-latest-posts__post-excerpt">Welcome to WordPress. This is your first post. Edit or delete it, then start writing!</div></li>
+		</ul>
+EOF;
+
+		// All of that should collapse to a single block. The inner markup determines the attributes.
+		// <!-- wp:latest-posts {"postsToShow":8,"displayPostContent":true,"displayAuthor":true,"displayPostDate":true,"displayFeaturedImage":true,"addLinkToFeaturedImage":true} /-->
+
+		$expected =<<<EOF
+<!-- wp:latest-posts {"displayPostDate":true,"displayAuthor":true} /-->
+EOF;
+
+		$converter = new Block_Converter_Recursive( $html );
+
+		$blocks = $converter->convert();
+		#var_dump( __METHOD__, $html, $blocks );ob_flush();flush();
+		$this->assertEquals( $expected, $blocks );
 	}
 
 }

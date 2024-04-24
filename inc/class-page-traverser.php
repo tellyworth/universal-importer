@@ -112,9 +112,65 @@ class PageTraverser {
 		if ( $body->count() ) {
 			$classes = explode( ' ', $body->item(0)->getAttribute('class') );
 			foreach ( $classes as $class ) {
-				if ( preg_match( '/postid-(\d+)/', $class, $matches ) ) {
+				if ( preg_match( '/(?:postid|pageid|page-id)-(\d+)/', $class, $matches ) ) {
 					return $matches[1];
 				}
+			}
+		}
+	}
+
+	public function is_static_home_page() {
+		// Check for a static home page in the body class
+		$body = $this->get_xpath( '//body' );
+		if ( $body->count() ) {
+			$classes = explode( ' ', $body->item(0)->getAttribute('class') );
+			if ( in_array( 'home', $classes ) && $this->get_post_id() ) {
+				return true;
+			}
+		}
+	}
+
+	public function get_media_urls() {
+		// FIXME: find all image/media URLs, not just img tags
+		$images = $this->get_xpath( '//img' );
+		$urls = [];
+		foreach ( $images as $image ) {
+			$src = $image->getAttribute('src');
+			if ( $src ) {
+				$urls[] = $src;
+			}
+		}
+		return $urls;
+	}
+
+	/**
+	 * Get a list of internal media URLs.
+	 * That is, images and other media that are part of the site being imported; links to external sites are excluded.
+	 */
+	public function get_internal_media_urls() {
+		$all_urls = $this->get_media_urls();
+
+		// FIXME: should get the site host from the URL being fetched, not rely on markup within it.
+		$site_host = strtolower( parse_url( $this->get_canonical(), PHP_URL_HOST ) );
+		foreach ( $all_urls as $url ) {
+			$parts = parse_url( $url );
+			// FIXME: account for CDNs, wp.com files domains, etc
+			if ( $parts['host'] === $site_host ) {
+				$urls[] = $url;
+			} elseif ( ! isset( $parts['host'] ) ) {
+				$urls[] = $url;
+			}
+		}
+
+		return $urls;
+	}
+
+	public function replace_media_urls( $url_map ) {
+		$images = $this->get_xpath( '//img' );
+		foreach ( $images as $image ) {
+			$src = $image->getAttribute('src');
+			if ( isset( $url_map[ $src ] ) ) {
+				$image->setAttribute( 'src', $url_map[ $src ] );
 			}
 		}
 	}

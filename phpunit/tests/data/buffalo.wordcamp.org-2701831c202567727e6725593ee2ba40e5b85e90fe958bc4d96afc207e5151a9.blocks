@@ -1,4 +1,6 @@
 <!-- wp:paragraph -->
 <p class="has-background" style="background-color:#eeeeee"><em>Organizers note:</em></p>
 <!-- /wp:paragraph -->
+<!-- wp:query {"layout":{"type":"constrained"}} -->
 <div class="wp-block-query has-global-padding is-layout-constrained wp-block-query-is-layout-constrained"></div>
+<!-- /wp:query -->

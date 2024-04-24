@@ -4,6 +4,12 @@ use Alley\WP\Block_Converter\Block_Converter;
 use Alley\WP\Block_Converter\Block;
 
 class Block_Converter_Recursive extends Block_Converter {
+
+	/**
+	 * Temporary/testing: track unknown block types.
+	 */
+	public $unhandled_blocks = [];
+
 	/**
 	 * Convert HTML to Gutenberg blocks, recursing to handle nested blocks.
 	 *
@@ -164,6 +170,31 @@ class Block_Converter_Recursive extends Block_Converter {
 		return in_array( $class, explode( ' ', $node->getAttribute( 'class' ) ) );
 	}
 
+	static function node_matches_class( \DOMNode $node, $class_prefix ) {
+		if ( !method_exists( $node, 'getAttribute' ) ) {
+			return false;
+		}
+		$classes = explode( ' ', $node->getAttribute( 'class' ) );
+		foreach ( $classes as $class ) {
+			if ( str_starts_with( $class, $class_prefix ) ) {
+				return $class;
+			}
+		}
+
+		return false;
+	}
+
+	static function node_ancestor_has_class( \DOMNode $node, $class ) {
+		$parent = $node->parentNode;
+		while ( $parent ) {
+			if ( self::node_has_class( $parent, $class ) ) {
+				return $parent;
+			}
+			$parent = $parent->parentNode;
+		}
+		return false;
+	}
+
 	static function get_node_layout_name( \DOMNode $node ) {
 		#var_dump( __METHOD__, $node->textContent, $node->getAttribute('class') );
 		$layout_classes = [
@@ -217,10 +248,119 @@ class Block_Converter_Recursive extends Block_Converter {
 			$block = new Block( 'core/column', $atts, $content );
 			#var_dump( $block );
 			return $block;
+		} elseif ( static::node_has_class( $node, 'wp-block-buttons' ) ) {
+			$node->removeAttribute('style');
+			$content = static::get_node_html( $node );
+			// Basically just a wrapper div for individual button blocks
+			$block = new Block( 'core/buttons', $atts, $content );
+			return $block;
+		} elseif ( static::node_has_class( $node, 'wp-block-button') || static::node_matches_class( $node, 'wp-block-button__') ) {
+			$node->removeAttribute('style');
+			$content = static::get_node_html( $node );
+			// Should contain a single <a> tag; does that need processing?
+			$block = new Block( 'core/button', $atts, $content );
+			return $block;
+		} elseif ( static::node_has_class( $node, 'wp-block-spacer') ) {
+			// Ignore the inner content entirely.
+			$block = new Block( 'core/spacer', $atts, '' );
+			return $block;
+		} elseif ( static::node_has_class( $node, 'wp-block-group') ) {
+			$node->removeAttribute('style');
+			$content = static::get_node_html( $node );
+			// Group blocks seem to behave inconsistently depending on style. Sometimes the editor seems to replace them with something else like rows.
+			$block = new Block( 'core/group', $atts, $content );
+			return $block;
+		} elseif ( static::node_matches_class( $node, 'wp-block-jetpack-' ) ) {
+			// Jetpack form/button; bypass for now.
+			return new Block( null, [], static::get_node_html( $node ) );
+		} elseif ( static::node_matches_class( $node, 'wp-block-wordcamp-' ) ) {
+			// WordCamp blocks; bypass for now.
+			return new Block( null, [], static::get_node_html( $node ) );
+		} elseif ( static::node_has_class( $node, 'wp-block-query' ) ) {
+			// Query block! This one requires us to look at the inner markup.
+			$node->removeAttribute('style');
+			$query_atts = [];
+			$xpath = new DOMXPath( $node->ownerDocument );
+			if ( $querypost = $xpath->query( '.wp-block-post', $node ) ) {
+				if ( $querypost->count() ) {
+					$query_atts['perPage'] = $querypost->count();
+				}
+				if ( $type = self::node_matches_class( $querypost->item(0), 'type-' ) ) {
+					$query_atts['postType'] = str_replace( 'type-', '', $type );
+				}
+				$atts['query'] = $query_atts;
+				// Inner content is a template, but we have a list of multiple instances.
+				// So we want to delete all but one, and let the remaining one be the template.
+				for ( $i = 1; $i < $querypost->count(); $i++ ) {
+					$querypost->item( $i )->parentNode->removeChild( $querypost->item( $i ) );
+				}
+			}
+			return new Block( 'core/query', $atts, static::get_node_html( $node ) );
+		} elseif ( static::node_has_class( $node, 'wp-block-post-content') ) {
+			// If we're within a query block, this is a template block; ignore the inner content entirely.
+			if ( static::node_ancestor_has_class( $node, 'wp-block-query' ) ) {
+				return new Block( 'core/post-content', [], '' );
+			}
+			// Otherwise just leave this as a div.
+			return new Block( null, [], static::get_node_html( $node ) );
+		} elseif ( static::node_has_class( $node, 'wp-block-post-date') ) {
+			// Template block; ignore the inner content entirely.
+			return new Block( 'core/post-date', [], '' );
+		} elseif ( static::node_has_class( $node, 'wp-block-post-excerpt') ) {
+			// Template block; ignore the inner content entirely.
+			return new Block( 'core/post-excerpt', [], '' );
+		} elseif ( static::node_has_class( $node, 'wp-block-post-author-name') ) {
+			// Template block; ignore the inner content entirely.
+			return new Block( 'core/post-author-name', [], '' );
+		} elseif ( static::node_has_class( $node, 'wp-block-post-terms') ) {
+			// Template block; ignore the inner content entirely.
+			return new Block( 'core/post-terms', [], '' );
+		} elseif ( static::node_has_class( $node, 'wp-block-template-part') ) {
+			// Treat this like a group block for now.
+			$content = static::get_node_html( $node );
+			return new Block( 'core/template-part', $atts, $content );
+		} elseif ( $_class = static::node_matches_class( $node, 'wp-block-latest-posts__' ) ) {
+			// Set some additional classes on the parent latest-posts block so as to preserve info about what the attributes should be.
+			$inner_class = str_replace( 'wp-block-latest-posts__', '', $_class );
+			if ( $_parent = static::node_ancestor_has_class( $node, 'wp-block-latest-posts' ) ) {
+				$_parent->setAttribute( 'class', $_parent->getAttribute( 'class' ) . ' has-' . $inner_class );
+			}
+			// implicit inner block will be generated by the latest-posts parent block I think, so we can remove this entirely.
+			return new Block( null, [], '' );
 		}
 
 		// Default should leave the HTML as-is.
-		return static::get_node_html( $node );
+		#return static::get_node_html( $node );
+		return self::html( $node );
+	}
+
+	protected function li( \DOMNode $node ) {
+		if ( static::node_has_class( $node, 'wp-block-post' ) ) {
+			$node->removeAttribute('style');
+			$content = static::get_node_html( $node );
+			$block = new Block( 'core/post-template', [], $content );
+			return $block;
+		}
+
+		return self::html( $node );
+	}
+
+	protected function button( \DOMNode $node ) {
+		if ( static::node_matches_class( $node, 'wp-block-button' ) ) {
+			if ( static::node_matches_class( $node->parentNode, 'wp-block-jetpack-button' ) ) {
+				// FIXME: bypass Jetpack forms for now.
+				return new Block( null, [], static::get_node_html( $node ) );
+			}
+		}
+		return self::html( $node );
+	}
+
+	protected function form ( \DOMNode $node ) {
+		if ( static::node_matches_class( $node, 'wp-block-jetpack-' ) ) {
+				// FIXME: bypass Jetpack forms for now.
+				return new Block( null, [], static::get_node_html( $node ) );
+		}
+		return self::html( $node );
 	}
 
 	/**
@@ -235,12 +375,41 @@ class Block_Converter_Recursive extends Block_Converter {
 	}
 
 	protected function h( \DOMNode $node ): ?Block {
+		// A post-title block is a template; we don't want any of the inner content.
+		if ( static::node_has_class( $node, 'wp-block-post-title' ) ) {
+			// eg <!-- wp:post-title {"level":3,"isLink":true} /-->
+			$atts = [
+				'level' => absint( str_replace( 'h', '', $node->nodeName ) )
+			];
+			if ( $node->hasChildNodes() && 'a' === $node->firstChild->nodeName ) {
+				$atts['isLink'] = true;
+			}
+			return new Block( 'core/post-title', $atts, '' );
+		}
+
 		// Remove style attributes to prevent block validation errors.
 		$node->removeAttribute( 'style' );
 		return parent::h( $node );
 	}
 
+	protected function time( \DOMNode $node ): Block {
+		// Implicit block generated by a latest-posts block; we don't want any of the inner content.
+		if ( static::node_matches_class( $node, 'wp-block-latest-posts__' ) ) {
+			return new Block( null, [], '' );
+		}
+
+		// Remove style attributes to prevent block validation errors.
+		$node->removeAttribute( 'style' );
+		return parent::time( $node );
+	}
+
 	protected function figure( \DOMNode $node ): ?Block {
+
+		// A post-featured-image block is a template; we don't want any of the inner content.
+		if ( static::node_has_class( $node, 'wp-block-post-featured-image' ) ) {
+			return new Block( 'core/post-featured-image', [], '' );
+		}
+
 		// Must contain an img tag.
 		if ( ! $node->hasChildNodes() ) {
 			return null;
@@ -299,6 +468,43 @@ class Block_Converter_Recursive extends Block_Converter {
 		return new Block( null, [], static::get_node_html( $node ) );
 	}
 
+	function ul( \DOMNode $node ): Block {
+		// A latest-posts block is similar to a template: we don't want any of the inner content.
+		if ( static::node_has_class( $node, 'wp-block-latest-posts__list' ) ) {
+			$atts = [];
+			if ( self::node_has_class( $node, 'is-grid' ) ) {
+				$atts['postLayout'] = 'grid';
+			}
+			// FIXME: share this code with div so we get other alignments etc.
+			if ( static::node_has_class( $node, 'alignfull' ) ) {
+				$atts['align'] = 'full';
+			}
+			// <!-- wp:latest-posts {"postsToShow":8,"displayPostContent":true,"displayAuthor":true,"displayPostDate":true,"displayFeaturedImage":true,"addLinkToFeaturedImage":true} /-->
+			if ( $node->childNodes->length > 1 ) {
+				$atts['postsToShow'] = $node->childNodes->length;
+			}
+			// It's a shame this seems to be the only block attribute that shows up in a class.
+			if ( static::node_has_class( $node, 'has-dates' ) ) {
+				$atts['displayPostDate'] = true;
+			}
+			// These classes were added in div() above.
+			if ( static::node_has_class( $node, 'has-post-author' ) ) {
+				$atts['displayAuthor'] = true;
+			}
+			if ( static::node_has_class( $node, 'has-featured-image' ) ) {
+				$atts['displayFeaturedImage'] = true;
+			}
+			if ( static::node_has_class( $node, 'has-post-content' ) ) {
+				$atts['displayPostContent'] = true;
+			}
+
+			return new Block( 'core/latest-posts', $atts, '' );
+		}
+
+		// Default should leave the HTML as-is.
+		return parent::ul( $node );
+	}
+
 	function html( \DOMNode $node ): ?Block {
 		#var_dump( "html", $node->nodeName );
 
@@ -339,10 +545,17 @@ class Block_Converter_Recursive extends Block_Converter {
 			'wbr'       // Word break opportunity
 		];
 
+		if ( $block_type = self::node_matches_class( $node, 'wp-block-' ) ) {
+			$this->unhandled_blocks[ $block_type ] = $node;
+			#var_dump( static::get_node_html( $node ) );
+			trigger_error( "Unhandled block type: <$node->nodeName> $block_type", E_USER_WARNING );
+		}
+
 		if ( in_array( $node->nodeName, $ignore ) ) {
 			#return static::get_node_html( $node );
 			return new Block( null, [], static::get_node_html( $node ) );
 		}
+
 
 		// Default should leave the HTML as-is.
 		return parent::html( $node );
