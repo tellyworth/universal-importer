@@ -3,6 +3,15 @@
 use Alley\WP\Block_Converter\Block_Converter;
 use Alley\WP\Block_Converter\Block;
 
+if ( function_exists( 'add_filter' ) ) {
+	// wp_http_validate_url() seems buggy or misguided when running on localhost.
+	// Adding this filter in the block converter class because the base class uses WP functions to fetch remote images.
+	add_filter( 'http_request_host_is_external', function( $external, $host, $url ) {
+		$site_host = strtolower( parse_url( get_site_url(), PHP_URL_HOST ) );
+		return $site_host !== strtolower( $host );
+	}, 10, 3 );
+}
+
 class Block_Converter_Recursive extends Block_Converter {
 
 	/**
