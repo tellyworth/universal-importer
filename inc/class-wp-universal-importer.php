@@ -19,12 +19,14 @@ class WP_Universal_Importer extends WP_Importer {
 	}
 
 	public function register_importer() {
-		register_importer(
-			'universal-importer',
-			'Universal Importer',
-			__('Import any web site.', 'universal-importer'),
-			array($this, 'dispatch')
-		);
+		if ( function_exists( 'register_importer' ) ) {
+			register_importer(
+				'universal-importer',
+				'Universal Importer',
+				__('Import any web site.', 'universal-importer'),
+				array($this, 'dispatch')
+			);
+		}
 	}
 	public function dispatch() {
 		// Crude progress output
@@ -50,25 +52,31 @@ class WP_Universal_Importer extends WP_Importer {
 				$this->greet();
 				return;
 			}
-			$site_indexer = SiteIndexer::instance();
-			$sitemaps = $site_indexer->get_sitemaps( $url );
-			if ( empty( $sitemaps ) ) {
-				echo '<p>No sitemaps found at ' . esc_html($url) . '</p>';
-			} elseif ( empty( $site_indexer->get_urls() ) ) {
-				echo '<p>No URLs found at ' . esc_html($url) . '</p>';
-			} elseif ( count( $site_indexer->get_urls() ) > 100 ) {
-				echo '<p>More than 100 pages to import: ' . count( $site_indexer->get_urls() ) . ' URLs found at ' . esc_html($url) . '</p>';
+
+			if ( ! empty( $_POST['single'] ) ) {
+				// Just a single page
+				$this->perform_import($url, true);
 			} else {
-				if ( empty( $_POST['confirm'] ) ) {
-					echo '<p>Found ' . count( $site_indexer->get_urls() ) . ' pages to import from ' . esc_html($url) . '</p>';
-					echo '<form method="post">';
-					echo '<input type="hidden" name="source_url" value="' . esc_attr($url) . '" />';
-					echo '<input type="hidden" name="confirm" value="1" />';
-					echo '<input type="submit" name="submit" value="' . esc_attr__('Confirm Import', 'my-custom-importer') . '" />';
-					echo '</form>';
+				$site_indexer = SiteIndexer::instance();
+				$sitemaps = $site_indexer->get_sitemaps( $url );
+				if ( empty( $sitemaps ) ) {
+					echo '<p>No sitemaps found at ' . esc_html($url) . '</p>';
+				} elseif ( empty( $site_indexer->get_urls() ) ) {
+					echo '<p>No URLs found at ' . esc_html($url) . '</p>';
+				} elseif ( count( $site_indexer->get_urls() ) > 100 ) {
+					echo '<p>More than 100 pages to import: ' . count( $site_indexer->get_urls() ) . ' URLs found at ' . esc_html($url) . '</p>';
 				} else {
-					// Start the import
-					$this->perform_import($url);
+					if ( empty( $_POST['confirm'] ) ) {
+						echo '<p>Found ' . count( $site_indexer->get_urls() ) . ' pages to import from ' . esc_html($url) . '</p>';
+						echo '<form method="post">';
+						echo '<input type="hidden" name="source_url" value="' . esc_attr($url) . '" />';
+						echo '<input type="hidden" name="confirm" value="1" />';
+						echo '<input type="submit" name="submit" value="' . esc_attr__('Confirm Import', 'my-custom-importer') . '" />';
+						echo '</form>';
+					} else {
+						// Start the import
+						$this->perform_import($url);
+					}
 				}
 			}
 		} else {
@@ -81,18 +89,24 @@ class WP_Universal_Importer extends WP_Importer {
 	private function greet() {
 		?>
 		<form method="post">
-			<p><?php _e('Enter the URL of the source to import from:', 'my-custom-importer'); ?></p>
+			<p><?php _e('Enter the URL of the site to import from:', 'my-custom-importer'); ?></p>
 			<input type="url" name="source_url" value="" placeholder="https://buffalo.wordcamp.org/2024/" />
 			<input type="submit" name="submit" value="<?php esc_attr_e('Import', 'my-custom-importer'); ?>">
+			<p><label><input type="checkbox" name="single" value="1" /> <?php _e('Import a single page only', 'my-custom-importer'); ?></label></p>
 		</form>
 		<?php
 	}
 
-	private function perform_import($url) {
+	public function perform_import($url, $single_page = false ) {
 		echo '<p>Starting import from: ' . esc_html($url) . '</p>';
 
 		$universal_importer = Universal_Importer::instance();
-		$universal_importer->import( $url, array( $this, 'import_page' ), array( $this, 'import_media' ) );
+
+		if ( $single_page ) {
+			$universal_importer->import_page( $url, array( $this, 'import_page' ), array( $this, 'import_media' ) );
+		} else {
+			$universal_importer->import( $url, array( $this, 'import_page' ), array( $this, 'import_media' ) );
+		}
 	}
 
 	public function import_media( $media_urls, $page ) {
