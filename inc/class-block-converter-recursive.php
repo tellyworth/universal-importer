@@ -281,7 +281,7 @@ class Block_Converter_Recursive extends Block_Converter {
 			$node->removeAttribute('style');
 			$query_atts = [];
 			$xpath = new DOMXPath( $node->ownerDocument );
-			if ( $querypost = $xpath->query( '.wp-block-post', $node ) ) {
+			if ( $querypost = $xpath->query( 'contains(@class, "wp-block-post")', $node ) ) {
 				if ( $querypost->count() ) {
 					$query_atts['perPage'] = $querypost->count();
 				}
