@@ -188,6 +188,9 @@ class WP_Universal_Importer extends WP_Importer {
 
 		$post = [];
 		$post['guid'] = $upload['url'];
+		$post['content'] = '';
+		$post['post_status'] = 'inherit';
+		$post['post_title'] = basename( $upload['file'] );
 
 		// as per wp-admin/includes/upload.php
 		$post_id = wp_insert_attachment( $post, $upload['file'], $parent_post_id );
