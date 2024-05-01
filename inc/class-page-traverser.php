@@ -47,15 +47,17 @@ class PageTraverser {
 	}
 
 	public function get_content() {
-		$article = $this->get_xpath( '//article/*' );
-		if ( $article->count() ) {
-			return $article;
-		}
+		// Look for the most specific content container first
 
 		// Common in modern themes
 		$div = $this->get_xpath( '//main//div[contains(@class, \'entry-content\')]/*' );
 		if ( $div->count() ) {
 			return $div;
+		}
+
+		$article = $this->get_xpath( '//article/*' );
+		if ( $article->count() ) {
+			return $article;
 		}
 
 		$main = $this->get_xpath( '//main/*' );

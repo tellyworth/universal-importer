@@ -52,7 +52,7 @@ class Universal_Importer {
 
 	}
 
-	public function import_page( $url, $handler, $media_handler ) {
+	public function import_page( $url, $handler, $media_handler = null ) {
 
 		$page_fetcher = PageFetcher::instance();
 		$page_traverser = PageTraverser::instance();

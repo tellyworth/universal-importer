@@ -3,6 +3,15 @@
 use Alley\WP\Block_Converter\Block_Converter;
 use Alley\WP\Block_Converter\Block;
 
+if ( function_exists( 'add_filter' ) ) {
+	// wp_http_validate_url() seems buggy or misguided when running on localhost.
+	// Adding this filter in the block converter class because the base class uses WP functions to fetch remote images.
+	add_filter( 'http_request_host_is_external', function( $external, $host, $url ) {
+		$site_host = strtolower( parse_url( get_site_url(), PHP_URL_HOST ) );
+		return $site_host !== strtolower( $host );
+	}, 10, 3 );
+}
+
 class Block_Converter_Recursive extends Block_Converter {
 
 	/**
@@ -213,6 +222,16 @@ class Block_Converter_Recursive extends Block_Converter {
 		return false;
 	}
 
+	// Similar to get_node_html, but gets only the children, ignoring the current node itself.
+	// Needed for certain blocks where the html markup for the node itself should be null, but it can still have children.
+	static function get_node_children_html( \DOMNode $node ) {
+		$html = [];
+		foreach ( $node->childNodes as $child_node ) {
+			$html[] = self::get_node_html( $child_node );
+		}
+		return implode( "\n", $html );
+	}
+
 
 	/**
 	 * Handle some div blocks
@@ -281,18 +300,20 @@ class Block_Converter_Recursive extends Block_Converter {
 			$node->removeAttribute('style');
 			$query_atts = [];
 			$xpath = new DOMXPath( $node->ownerDocument );
-			if ( $querypost = $xpath->query( '.wp-block-post', $node ) ) {
+			if ( $querypost = $xpath->query( '//*[contains(@class, "wp-block-post")]', $node ) ) {
+				// FIXME: this doesn't work because the child nodes are recursed first.
+				// Need to handle it in a similar way to wp-block-latest-posts__ below (pass details from child to parent).
 				if ( $querypost->count() ) {
 					$query_atts['perPage'] = $querypost->count();
-				}
-				if ( $type = self::node_matches_class( $querypost->item(0), 'type-' ) ) {
-					$query_atts['postType'] = str_replace( 'type-', '', $type );
-				}
-				$atts['query'] = $query_atts;
-				// Inner content is a template, but we have a list of multiple instances.
-				// So we want to delete all but one, and let the remaining one be the template.
-				for ( $i = 1; $i < $querypost->count(); $i++ ) {
-					$querypost->item( $i )->parentNode->removeChild( $querypost->item( $i ) );
+					if ( $type = self::node_matches_class( $querypost->item(0), 'type-' ) ) {
+						$query_atts['postType'] = str_replace( 'type-', '', $type );
+					}
+					$atts['query'] = $query_atts;
+					// Inner content is a template, but we have a list of multiple instances.
+					// So we want to delete all but one, and let the remaining one be the template.
+					for ( $i = 1; $i < $querypost->count(); $i++ ) {
+						$querypost->item( $i )->parentNode->removeChild( $querypost->item( $i ) );
+					}
 				}
 			}
 			return new Block( 'core/query', $atts, static::get_node_html( $node ) );
@@ -337,7 +358,7 @@ class Block_Converter_Recursive extends Block_Converter {
 	protected function li( \DOMNode $node ) {
 		if ( static::node_has_class( $node, 'wp-block-post' ) ) {
 			$node->removeAttribute('style');
-			$content = static::get_node_html( $node );
+			$content = static::get_node_children_html( $node );
 			$block = new Block( 'core/post-template', [], $content );
 			return $block;
 		}
@@ -499,6 +520,9 @@ class Block_Converter_Recursive extends Block_Converter {
 			}
 
 			return new Block( 'core/latest-posts', $atts, '' );
+		} elseif ( static::node_has_class( $node, 'wp-block-post-template' ) ) {
+			// FIXME: atts?
+			return new Block( 'core/post-template', [], self::get_node_children_html( $node ) );
 		}
 
 		// Default should leave the HTML as-is.
