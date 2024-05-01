@@ -222,6 +222,16 @@ class Block_Converter_Recursive extends Block_Converter {
 		return false;
 	}
 
+	// Similar to get_node_html, but gets only the children, ignoring the current node itself.
+	// Needed for certain blocks where the html markup for the node itself should be null, but it can still have children.
+	static function get_node_children_html( \DOMNode $node ) {
+		$html = [];
+		foreach ( $node->childNodes as $child_node ) {
+			$html[] = self::get_node_html( $child_node );
+		}
+		return implode( "\n", $html );
+	}
+
 
 	/**
 	 * Handle some div blocks
@@ -290,7 +300,9 @@ class Block_Converter_Recursive extends Block_Converter {
 			$node->removeAttribute('style');
 			$query_atts = [];
 			$xpath = new DOMXPath( $node->ownerDocument );
-			if ( $querypost = $xpath->query( 'contains(@class, "wp-block-post")', $node ) ) {
+			if ( $querypost = $xpath->query( '//*[contains(@class, "wp-block-post")]', $node ) ) {
+				// FIXME: this doesn't work because the child nodes are recursed first.
+				// Need to handle it in a similar way to wp-block-latest-posts__ below (pass details from child to parent).
 				if ( $querypost->count() ) {
 					$query_atts['perPage'] = $querypost->count();
 					if ( $type = self::node_matches_class( $querypost->item(0), 'type-' ) ) {
@@ -346,7 +358,7 @@ class Block_Converter_Recursive extends Block_Converter {
 	protected function li( \DOMNode $node ) {
 		if ( static::node_has_class( $node, 'wp-block-post' ) ) {
 			$node->removeAttribute('style');
-			$content = static::get_node_html( $node );
+			$content = static::get_node_children_html( $node );
 			$block = new Block( 'core/post-template', [], $content );
 			return $block;
 		}
@@ -508,6 +520,9 @@ class Block_Converter_Recursive extends Block_Converter {
 			}
 
 			return new Block( 'core/latest-posts', $atts, '' );
+		} elseif ( static::node_has_class( $node, 'wp-block-post-template' ) ) {
+			// FIXME: atts?
+			return new Block( 'core/post-template', [], self::get_node_children_html( $node ) );
 		}
 
 		// Default should leave the HTML as-is.
