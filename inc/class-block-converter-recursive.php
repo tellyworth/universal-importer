@@ -330,7 +330,8 @@ class Block_Converter_Recursive extends Block_Converter {
 		}
 
 		// Default should leave the HTML as-is.
-		return new Block( null, [], static::get_node_html( $node ) );
+		#return static::get_node_html( $node );
+		return self::html( $node );
 	}
 
 	protected function li( \DOMNode $node ) {
