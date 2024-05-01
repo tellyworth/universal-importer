@@ -284,15 +284,15 @@ class Block_Converter_Recursive extends Block_Converter {
 			if ( $querypost = $xpath->query( 'contains(@class, "wp-block-post")', $node ) ) {
 				if ( $querypost->count() ) {
 					$query_atts['perPage'] = $querypost->count();
-				}
-				if ( $type = self::node_matches_class( $querypost->item(0), 'type-' ) ) {
-					$query_atts['postType'] = str_replace( 'type-', '', $type );
-				}
-				$atts['query'] = $query_atts;
-				// Inner content is a template, but we have a list of multiple instances.
-				// So we want to delete all but one, and let the remaining one be the template.
-				for ( $i = 1; $i < $querypost->count(); $i++ ) {
-					$querypost->item( $i )->parentNode->removeChild( $querypost->item( $i ) );
+					if ( $type = self::node_matches_class( $querypost->item(0), 'type-' ) ) {
+						$query_atts['postType'] = str_replace( 'type-', '', $type );
+					}
+					$atts['query'] = $query_atts;
+					// Inner content is a template, but we have a list of multiple instances.
+					// So we want to delete all but one, and let the remaining one be the template.
+					for ( $i = 1; $i < $querypost->count(); $i++ ) {
+						$querypost->item( $i )->parentNode->removeChild( $querypost->item( $i ) );
+					}
 				}
 			}
 			return new Block( 'core/query', $atts, static::get_node_html( $node ) );
