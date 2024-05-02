@@ -18,6 +18,10 @@
 	$plugin = new WP_Universal_Importer();
  } );
 
+ add_action( 'rest_api_init', function () {
+	require_once __DIR__ . '/inc/class-html-converter-api.php';
+ } );
+
 function universal_importer_activate() {
 	// FIXME: needed for wp-now/playground
 	global $wp_rewrite;
