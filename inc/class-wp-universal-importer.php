@@ -79,6 +79,26 @@ class WP_Universal_Importer extends WP_Importer {
 					}
 				}
 			}
+		} elseif ( isset( $_POST['submit'] ) && !empty( $_POST['html_in'] ) ) {
+			// Note: zero validation or sanitizing, not sure yet what we need to allow or prevent.
+			$html = wp_unslash( $_POST['html_in'] );
+
+			$html_transformer = HTMLTransformer::instance();
+			$blocks = $html_transformer->transform( $html );
+
+			if ( $blocks && !empty( $_POST['html_to_page'] ) ) {
+				$post_id = wp_insert_post( array(
+					'post_title' => 'Imported Page',
+					'post_content' => $blocks,
+					'post_status' => 'publish',
+					'post_type' => 'page',
+				) );
+				printf( '<p>Created page <a href="%s">%s</a></p>', get_page_link( $post_id ), get_page_link( $post_id ) );
+				echo '<pre><code style="white-space: pre-wrap">' . esc_html( $blocks ) . '</code></pre>';
+			} else {
+				echo '<pre><code style="white-space: pre-wrap">' . esc_html( $blocks ) . '</code></pre>';
+				$this->greet();
+			}
 		} else {
 			$this->greet();
 		}
@@ -90,10 +110,18 @@ class WP_Universal_Importer extends WP_Importer {
 		?>
 		<form method="post">
 			<p><?php _e('Enter the URL of the site to import from:', 'my-custom-importer'); ?></p>
-			<input type="url" name="source_url" value="" placeholder="https://buffalo.wordcamp.org/2024/" />
+			<input type="url" name="source_url" value="" placeholder="https://buffalo.wordcamp.org/2024/" size=80 />
 			<input type="submit" name="submit" value="<?php esc_attr_e('Import', 'my-custom-importer'); ?>">
 			<p><label><input type="checkbox" name="single" value="1" /> <?php _e('Import a single page only', 'my-custom-importer'); ?></label></p>
 		</form>
+
+		<form method="post">
+			<p><?php _e('Or, enter some HTML markup to convert to blocks:', 'my-custom-importer'); ?></p>
+			<textarea name="html_in" rows="20" cols="80" placeholder="Paste HTML here"><?php echo !empty( $_POST['html_in'] ) ? esc_html( wp_unslash( $_POST['html_in'] ) ) : '' ?></textarea>
+			<input type="submit" name="submit" value="<?php esc_attr_e('Convert', 'my-custom-importer'); ?>">
+			<p><label><input type="checkbox" name="html_to_page" value="1" <?php checked( !empty( $_POST['html_to_page'] ) ); ?> /> <?php _e('Create a page with this content', 'my-custom-importer'); ?></label></p>
+		</form>
+
 		<?php
 	}
 
