@@ -149,4 +149,92 @@ EOF;
 		$this->assertEquals( $expected, $blocks );
 	}
 
+	public function test_query_loop() {
+		$html = <<<EOF
+
+		<div class="wp-block-query is-layout-flow wp-block-query-is-layout-flow"><ul class="wp-block-post-template is-layout-flow wp-block-post-template-is-layout-flow"><li class="wp-block-post post-10 post type-post status-publish format-standard hentry category-uncategorized">
+
+		<div class="wp-block-columns alignwide is-layout-flex wp-container-core-columns-is-layout-1 wp-block-columns-is-layout-flex">
+		<div class="wp-block-column is-layout-flow wp-block-column-is-layout-flow" style="flex-basis:66.66%"></div>
+
+
+
+		<div class="wp-block-column is-layout-flow wp-block-column-is-layout-flow" style="flex-basis:33.33%"><h2 class="wp-block-post-title"><a href="https://playground.wordpress.net/scope:0.5199335684158969/?p=10" target="_self">Second Post</a></h2>
+
+		<div class="wp-block-post-excerpt"><p class="wp-block-post-excerpt__excerpt">second post excerpy </p></div></div>
+		</div>
+
+		</li><li class="wp-block-post post-8 post type-post status-publish format-standard hentry category-uncategorized">
+
+		<div class="wp-block-columns alignwide is-layout-flex wp-container-core-columns-is-layout-2 wp-block-columns-is-layout-flex">
+		<div class="wp-block-column is-layout-flow wp-block-column-is-layout-flow" style="flex-basis:66.66%"></div>
+
+
+
+		<div class="wp-block-column is-layout-flow wp-block-column-is-layout-flow" style="flex-basis:33.33%"><h2 class="wp-block-post-title"><a href="https://playground.wordpress.net/scope:0.5199335684158969/?p=8" target="_self">First Post</a></h2>
+
+		<div class="wp-block-post-excerpt"><p class="wp-block-post-excerpt__excerpt">first post excerpt </p></div></div>
+		</div>
+
+		</li><li class="wp-block-post post-5 post type-post status-publish format-standard hentry category-uncategorized">
+
+		<div class="wp-block-columns alignwide is-layout-flex wp-container-core-columns-is-layout-3 wp-block-columns-is-layout-flex">
+		<div class="wp-block-column is-layout-flow wp-block-column-is-layout-flow" style="flex-basis:66.66%"></div>
+
+
+
+		<div class="wp-block-column is-layout-flow wp-block-column-is-layout-flow" style="flex-basis:33.33%">
+
+		<div class="wp-block-post-excerpt"><p class="wp-block-post-excerpt__excerpt"> </p></div></div>
+		</div>
+
+		</li><li class="wp-block-post post-1 post type-post status-publish format-standard hentry category-uncategorized">
+
+		<div class="wp-block-columns alignwide is-layout-flex wp-container-core-columns-is-layout-4 wp-block-columns-is-layout-flex">
+		<div class="wp-block-column is-layout-flow wp-block-column-is-layout-flow" style="flex-basis:66.66%"></div>
+
+
+
+		<div class="wp-block-column is-layout-flow wp-block-column-is-layout-flow" style="flex-basis:33.33%"><h2 class="wp-block-post-title"><a href="https://playground.wordpress.net/scope:0.5199335684158969/?p=1" target="_self">Hello world!</a></h2>
+
+		<div class="wp-block-post-excerpt"><p class="wp-block-post-excerpt__excerpt">Welcome to WordPress. This is your first post. Edit or delete it, then start writing! </p></div></div>
+		</div>
+
+		</li></ul></div>
+
+EOF;
+
+		// This is the exact block code from the editor
+		$original = <<<EOF
+<!-- wp:query {"queryId":13,"query":{"perPage":10,"pages":0,"offset":0,"postType":"post","order":"desc","orderBy":"date","author":"","search":"","exclude":[],"sticky":"","inherit":true}} -->
+<div class="wp-block-query"><!-- wp:post-template -->
+<!-- wp:columns {"align":"wide"} -->
+<div class="wp-block-columns alignwide"><!-- wp:column {"width":"66.66%"} -->
+<div class="wp-block-column" style="flex-basis:66.66%"><!-- wp:post-featured-image {"isLink":true} /--></div>
+<!-- /wp:column -->
+
+<!-- wp:column {"width":"33.33%"} -->
+<div class="wp-block-column" style="flex-basis:33.33%"><!-- wp:post-title {"isLink":true} /-->
+
+<!-- wp:post-excerpt /--></div>
+<!-- /wp:column --></div>
+<!-- /wp:columns -->
+<!-- /wp:post-template --></div>
+<!-- /wp:query -->
+EOF;
+
+		// This is our expected approximation. It's structurally the same, but some attributes don't make it through.
+		$expected = <<<EOF
+<!-- wp:query {"layout":{"type":"default"},"query":{"perPage":"4","postType":"post"}} -->
+<div class="wp-block-query is-layout-flow wp-block-query-is-layout-flow"><!-- wp:post-template --><!-- wp:columns {"layout":{"type":"flex"},"align":"wide"} --><div class="wp-block-columns alignwide is-layout-flex wp-container-core-columns-is-layout-1 wp-block-columns-is-layout-flex"><!-- wp:column {"layout":{"type":"default"},"width":"66.66%"} --><div class="wp-block-column is-layout-flow wp-block-column-is-layout-flow"></div><!-- /wp:column --><!-- wp:column {"layout":{"type":"default"},"width":"33.33%"} --><div class="wp-block-column is-layout-flow wp-block-column-is-layout-flow"><!-- wp:post-title {"level":2,"isLink":true} /--><!-- wp:post-excerpt /--></div><!-- /wp:column --></div><!-- /wp:columns --><!-- /wp:post-template --></div>
+<!-- /wp:query -->
+EOF;
+
+		$converter = new Block_Converter_Recursive( $html );
+
+		$blocks = $converter->convert();
+		#var_dump( __METHOD__, $html, $blocks );ob_flush();flush();
+		$this->assertEquals( $expected, $blocks );
+
+	}
 }
