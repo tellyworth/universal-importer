@@ -57,8 +57,9 @@ npm run test
 
 ## Known issues
 
-* Only some Gutenberg blocks are handled correctly
-* Only some post types are handled correctly
+* ~~Only some Gutenberg blocks are handled correctly~~
+* ~~Only some post types are handled correctly~~
+* Custom post types are imported but not registered, so aren't visible (and query loop blocks fail even though they correctly use the right post_type)
 * Permalink scheme isn't matched correctly
 * Links ~~and image/asset URL~~s are not yet rewritten to point to the new site
 * ~~Images and other attachments are not yet imported~~

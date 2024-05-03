@@ -35,7 +35,7 @@
 <h3 class="wp-block-heading">3. Expected Behavior</h3>
 <!-- /wp:heading -->
 <!-- wp:list -->
-<ul><li>Be considerate, respectful, and collaborative.</li><li>Refrain from demeaning, discriminatory or harassing behavior and speech.</li><li>Be mindful of your surroundings and of your fellow participants. Alert conference organizers if you notice a dangerous situation or someone in distress.</li><li>Participate in an authentic and active way. In doing so, you help to create WordCamp Buffalo and make it your own.</li></ul>
+<ul><!-- wp:html --><li>Be considerate, respectful, and collaborative.</li><!-- /wp:html --><!-- wp:html --><li>Refrain from demeaning, discriminatory or harassing behavior and speech.</li><!-- /wp:html --><!-- wp:html --><li>Be mindful of your surroundings and of your fellow participants. Alert conference organizers if you notice a dangerous situation or someone in distress.</li><!-- /wp:html --><!-- wp:html --><li>Participate in an authentic and active way. In doing so, you help to create WordCamp Buffalo and make it your own.</li><!-- /wp:html --></ul>
 <!-- /wp:list -->
 <!-- wp:heading {"level":3} -->
 <h3 class="wp-block-heading">4. Unacceptable Behavior</h3>

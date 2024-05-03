@@ -102,8 +102,13 @@ class Block_Converter_Recursive extends Block_Converter {
 
 	public function convert_recursive( DOMNode $node ): string {
 
+		// Don't recurse into SVGs.
+		$skip_nodes = [
+			'svg',
+		];
+
 		// Depth-first recursion through child nodes.
-		if ( $node->hasChildNodes() ) {
+		if ( $node->hasChildNodes() && ! in_array( $node->nodeName, $skip_nodes ) ) {
 			$inner_html = [];
 			foreach( $node->childNodes as $child_node ) {
 				if ( '#text' === $child_node->nodeName ) {
@@ -193,10 +198,26 @@ class Block_Converter_Recursive extends Block_Converter {
 		return false;
 	}
 
+	// Does the given node have a parent/grandparent/etc with a specific class?
 	static function node_ancestor_has_class( \DOMNode $node, $class ) {
 		$parent = $node->parentNode;
 		while ( $parent ) {
 			if ( self::node_has_class( $parent, $class ) ) {
+				return $parent;
+			}
+			$parent = $parent->parentNode;
+		}
+		return false;
+	}
+
+	// Does the given node have a parent/grandparent/etc with a specific tagname?
+	static function node_ancestor_is( \DOMNode $node, $tagname ) {
+		if ( !is_array( $tagname ) ) {
+			$tagname = [ $tagname ];
+		}
+		$parent = $node->parentNode;
+		while ( $parent ) {
+			if ( in_array( strtolower( $parent->nodeName ), $tagname )  ) {
 				return $parent;
 			}
 			$parent = $parent->parentNode;
@@ -251,7 +272,14 @@ class Block_Converter_Recursive extends Block_Converter {
 			$atts['align'] = 'full';
 		}
 		if ( static::node_has_class( $node, 'has-medium-font-size' ) ) {
+			// FIXME: ..etc
 			$atts['fontSize'] = 'medium';
+		}
+		if ( $style = $node->getAttribute( 'style' ) ) {
+			if ( preg_match( '/flex-basis:\s*([0-9.]+%)/', $style, $matches ) ) {
+				// Is this universally applicable?
+				$atts['width'] = $matches[1];
+			}
 		}
 		if ( static::node_has_class( $node, 'wp-block-columns' ) ) {
 			$node->removeAttribute('style');
@@ -299,23 +327,23 @@ class Block_Converter_Recursive extends Block_Converter {
 			// Query block! This one requires us to look at the inner markup.
 			$node->removeAttribute('style');
 			$query_atts = [];
-			$xpath = new DOMXPath( $node->ownerDocument );
-			if ( $querypost = $xpath->query( '//*[contains(@class, "wp-block-post")]', $node ) ) {
-				// FIXME: this doesn't work because the child nodes are recursed first.
-				// Need to handle it in a similar way to wp-block-latest-posts__ below (pass details from child to parent).
-				if ( $querypost->count() ) {
-					$query_atts['perPage'] = $querypost->count();
-					if ( $type = self::node_matches_class( $querypost->item(0), 'type-' ) ) {
-						$query_atts['postType'] = str_replace( 'type-', '', $type );
-					}
-					$atts['query'] = $query_atts;
-					// Inner content is a template, but we have a list of multiple instances.
-					// So we want to delete all but one, and let the remaining one be the template.
-					for ( $i = 1; $i < $querypost->count(); $i++ ) {
-						$querypost->item( $i )->parentNode->removeChild( $querypost->item( $i ) );
-					}
-				}
+			// Fetch any attributes that were passed back from child nodes (we recursed them first).
+			if ( $post_count = $node->getAttribute( 'data-post-count' ) ) {
+				$query_atts['perPage'] = $post_count;
+				$node->removeAttribute( 'data-post-count' );
 			}
+			if ( $post_type = $node->getAttribute( 'data-post-type' ) ) {
+				$query_atts['postType'] = $post_type;
+				$node->removeAttribute( 'data-post-type' );
+			}
+			if ( $post_status = $node->getAttribute( 'data-post-status' ) ) {
+				$query_atts['postStatus'] = $post_status;
+				$node->removeAttribute( 'data-post-status' );
+			}
+			if ( $query_atts ) {
+				$atts['query'] = $query_atts;
+			}
+
 			return new Block( 'core/query', $atts, static::get_node_html( $node ) );
 		} elseif ( static::node_has_class( $node, 'wp-block-post-content') ) {
 			// If we're within a query block, this is a template block; ignore the inner content entirely.
@@ -350,16 +378,41 @@ class Block_Converter_Recursive extends Block_Converter {
 			return new Block( null, [], '' );
 		}
 
-		// Default should leave the HTML as-is.
-		#return static::get_node_html( $node );
-		return self::html( $node );
+		// Default for a div: treat it as a group block.
+		$node->removeAttribute('style');
+		$node->setAttribute( 'class', trim( 'wp-block-group ' . $node->getAttribute( 'class' ) ) );
+		$content = static::get_node_html( $node );
+		return new Block( 'core/group', $atts, $content );
+
 	}
 
 	protected function li( \DOMNode $node ) {
 		if ( static::node_has_class( $node, 'wp-block-post' ) ) {
+			// A li.wp-block-post within a query block is an instance of a post template.
+			// Note that the parent ul tag is the post-template block itself.
 			$node->removeAttribute('style');
 			$content = static::get_node_children_html( $node );
-			$block = new Block( 'core/post-template', [], $content );
+			$block = new Block( null, [], $content );
+
+			// This is a template block probably from a query-loop block. We only want the first of these since it's a template;
+			// subsequent li.wp-block-post elements represent each post rendered with the same content. So we'll remove all but the first.
+			if ( $_query_block = static::node_ancestor_has_class( $node, 'wp-block-query') ) {
+				$post_count = 1;
+				while ( $node->nextSibling && 'li' === $node->nextSibling->nodeName && static::node_has_class( $node->nextSibling, 'wp-block-post' ) ) {
+					$node->parentNode->removeChild( $node->nextSibling );
+					++ $post_count;
+				}
+				// We're recursing depth-first, so we need to pass data back up to the query block.
+				if ( $post_count ) {
+					$_query_block->setAttribute( 'data-post-count', $post_count );
+				}
+				if ( $post_status = static::node_matches_class( $node, 'status-' ) ) {
+					$_query_block->setAttribute( 'data-post-status', substr( $post_status, 7 ) );
+				}
+				if ( $post_type = static::node_matches_class( $node, 'type-' ) ) {
+					$_query_block->setAttribute( 'data-post-type', substr( $post_type, 5 ) );
+				}
+			}
 			return $block;
 		}
 
@@ -486,7 +539,8 @@ class Block_Converter_Recursive extends Block_Converter {
 		}
 
 		// Default should leave the HTML as-is.
-		return new Block( null, [], static::get_node_html( $node ) );
+		#return new Block( null, [], static::get_node_html( $node ) );
+		return self::html( $node );
 	}
 
 	function ul( \DOMNode $node ): Block {
@@ -530,7 +584,6 @@ class Block_Converter_Recursive extends Block_Converter {
 	}
 
 	function html( \DOMNode $node ): ?Block {
-		#var_dump( "html", $node->nodeName );
 
 		$ignore = [
 			'a',        // Anchor element
@@ -549,7 +602,6 @@ class Block_Converter_Recursive extends Block_Converter {
 			'input',    // Input field
 			'kbd',      // Keyboard input
 			'label',    // Label for a form element
-			'li',       // List item
 			'mark',     // Marked text
 			'q',        // Inline quotation
 			'rp',       // For ruby annotations (fallback parentheses)
@@ -569,19 +621,28 @@ class Block_Converter_Recursive extends Block_Converter {
 			'wbr'       // Word break opportunity
 		];
 
+		// Handle above block types that are allowed within a paragraph block.
+		if ( in_array( $node->nodeName, $ignore ) ) {
+			// If it's already within a paragraph block, just return the HTML as-is.
+			$ok_parent_blocks = [ 'p', 'li', 'th', 'td', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6' ];
+			if ( static::node_ancestor_is( $node, $ok_parent_blocks ) ) {
+				return new Block( null, [], static::get_node_html( $node ) );
+			} elseif ( 'a' === $node->nodeName ) {
+				// Bare anchor tags are fairly common, but Gutenberg only allows them within a paragraph block.
+				return new Block( 'paragraph', [], '<p>' . static::get_node_html( $node ) . '</p>' );
+			}
+
+			// Could potentially handle other inline elements like we do a tags above.
+			return new Block( null, [], static::get_node_html( $node ) );
+		}
+
 		if ( $block_type = self::node_matches_class( $node, 'wp-block-' ) ) {
 			$this->unhandled_blocks[ $block_type ] = $node;
 			#var_dump( static::get_node_html( $node ) );
 			trigger_error( "Unhandled block type: <$node->nodeName> $block_type", E_USER_WARNING );
 		}
 
-		if ( in_array( $node->nodeName, $ignore ) ) {
-			#return static::get_node_html( $node );
-			return new Block( null, [], static::get_node_html( $node ) );
-		}
-
-
-		// Default should leave the HTML as-is.
+		// Default should wrap in a html block.
 		return parent::html( $node );
 	}
 
