@@ -198,10 +198,23 @@ class Block_Converter_Recursive extends Block_Converter {
 		return false;
 	}
 
+	// Does the given node have a parent/grandparent/etc with a specific class?
 	static function node_ancestor_has_class( \DOMNode $node, $class ) {
 		$parent = $node->parentNode;
 		while ( $parent ) {
 			if ( self::node_has_class( $parent, $class ) ) {
+				return $parent;
+			}
+			$parent = $parent->parentNode;
+		}
+		return false;
+	}
+
+	// Does the given node have a parent/grandparent/etc with a specific tagname?
+	static function node_ancestor_is( \DOMNode $node, $tagname ) {
+		$parent = $node->parentNode;
+		while ( $parent ) {
+			if ( strtolower( $tagname ) === strtolower( $parent->nodeName ) ) {
 				return $parent;
 			}
 			$parent = $parent->parentNode;
@@ -358,9 +371,12 @@ class Block_Converter_Recursive extends Block_Converter {
 			return new Block( null, [], '' );
 		}
 
-		// Default should leave the HTML as-is.
-		#return static::get_node_html( $node );
-		return self::html( $node );
+		// Default for a div: treat it as a group block.
+		$node->removeAttribute('style');
+		$node->setAttribute( 'class', trim( 'wp-block-group ' . $node->getAttribute( 'class' ) ) );
+		$content = static::get_node_html( $node );
+		return new Block( 'core/group', $atts, $content );
+
 	}
 
 	protected function li( \DOMNode $node ) {
@@ -515,7 +531,8 @@ class Block_Converter_Recursive extends Block_Converter {
 		}
 
 		// Default should leave the HTML as-is.
-		return new Block( null, [], static::get_node_html( $node ) );
+		#return new Block( null, [], static::get_node_html( $node ) );
+		return self::html( $node );
 	}
 
 	function ul( \DOMNode $node ): Block {
@@ -559,7 +576,6 @@ class Block_Converter_Recursive extends Block_Converter {
 	}
 
 	function html( \DOMNode $node ): ?Block {
-		#var_dump( "html", $node->nodeName );
 
 		$ignore = [
 			'a',        // Anchor element
@@ -578,7 +594,6 @@ class Block_Converter_Recursive extends Block_Converter {
 			'input',    // Input field
 			'kbd',      // Keyboard input
 			'label',    // Label for a form element
-			'li',       // List item
 			'mark',     // Marked text
 			'q',        // Inline quotation
 			'rp',       // For ruby annotations (fallback parentheses)
@@ -604,13 +619,22 @@ class Block_Converter_Recursive extends Block_Converter {
 			trigger_error( "Unhandled block type: <$node->nodeName> $block_type", E_USER_WARNING );
 		}
 
+		// Handle above block types that are allowed within a paragraph block.
 		if ( in_array( $node->nodeName, $ignore ) ) {
-			#return static::get_node_html( $node );
+			// If it's already within a paragraph block, just return the HTML as-is.
+			if ( static::node_ancestor_is( $node, 'p' ) ) {
+				return new Block( null, [], static::get_node_html( $node ) );
+			} elseif ( 'a' === $node->nodeName ) {
+				// Bare anchor tags are fairly common, but Gutenberg only allows them within a paragraph block.
+				return new Block( 'paragraph', [], '<p>' . static::get_node_html( $node ) . '</p>' );
+			}
+
+			// Could potentially handle other inline elements like we do a tags above.
 			return new Block( null, [], static::get_node_html( $node ) );
 		}
 
 
-		// Default should leave the HTML as-is.
+		// Default should wrap in a html block.
 		return parent::html( $node );
 	}
 
