@@ -102,8 +102,13 @@ class Block_Converter_Recursive extends Block_Converter {
 
 	public function convert_recursive( DOMNode $node ): string {
 
+		// Don't recurse into SVGs.
+		$skip_nodes = [
+			'svg',
+		];
+
 		// Depth-first recursion through child nodes.
-		if ( $node->hasChildNodes() ) {
+		if ( $node->hasChildNodes() && ! in_array( $node->nodeName, $skip_nodes ) ) {
 			$inner_html = [];
 			foreach( $node->childNodes as $child_node ) {
 				if ( '#text' === $child_node->nodeName ) {
