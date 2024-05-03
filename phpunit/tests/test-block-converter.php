@@ -225,7 +225,7 @@ EOF;
 
 		// This is our expected approximation. It's structurally the same, but some attributes don't make it through.
 		$expected = <<<EOF
-<!-- wp:query {"layout":{"type":"default"},"query":{"perPage":"4","postType":"post"}} -->
+<!-- wp:query {"layout":{"type":"default"},"query":{"perPage":"4","postType":"post","postStatus":"publish"}} -->
 <div class="wp-block-query is-layout-flow wp-block-query-is-layout-flow"><!-- wp:post-template --><!-- wp:columns {"layout":{"type":"flex"},"align":"wide"} --><div class="wp-block-columns alignwide is-layout-flex wp-container-core-columns-is-layout-1 wp-block-columns-is-layout-flex"><!-- wp:column {"layout":{"type":"default"},"width":"66.66%"} --><div class="wp-block-column is-layout-flow wp-block-column-is-layout-flow"></div><!-- /wp:column --><!-- wp:column {"layout":{"type":"default"},"width":"33.33%"} --><div class="wp-block-column is-layout-flow wp-block-column-is-layout-flow"><!-- wp:post-title {"level":2,"isLink":true} /--><!-- wp:post-excerpt /--></div><!-- /wp:column --></div><!-- /wp:columns --><!-- /wp:post-template --></div>
 <!-- /wp:query -->
 EOF;
