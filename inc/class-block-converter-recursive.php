@@ -212,9 +212,12 @@ class Block_Converter_Recursive extends Block_Converter {
 
 	// Does the given node have a parent/grandparent/etc with a specific tagname?
 	static function node_ancestor_is( \DOMNode $node, $tagname ) {
+		if ( !is_array( $tagname ) ) {
+			$tagname = [ $tagname ];
+		}
 		$parent = $node->parentNode;
 		while ( $parent ) {
-			if ( strtolower( $tagname ) === strtolower( $parent->nodeName ) ) {
+			if ( in_array( strtolower( $parent->nodeName ), $tagname )  ) {
 				return $parent;
 			}
 			$parent = $parent->parentNode;
@@ -333,6 +336,10 @@ class Block_Converter_Recursive extends Block_Converter {
 				$query_atts['postType'] = $post_type;
 				$node->removeAttribute( 'data-post-type' );
 			}
+			if ( $post_status = $node->getAttribute( 'data-post-status' ) ) {
+				$query_atts['postStatus'] = $post_status;
+				$node->removeAttribute( 'data-post-status' );
+			}
 			if ( $query_atts ) {
 				$atts['query'] = $query_atts;
 			}
@@ -399,8 +406,9 @@ class Block_Converter_Recursive extends Block_Converter {
 				if ( $post_count ) {
 					$_query_block->setAttribute( 'data-post-count', $post_count );
 				}
-
-				// Also pass the post type up to the query block.
+				if ( $post_status = static::node_matches_class( $node, 'status-' ) ) {
+					$_query_block->setAttribute( 'data-post-status', substr( $post_status, 7 ) );
+				}
 				if ( $post_type = static::node_matches_class( $node, 'type-' ) ) {
 					$_query_block->setAttribute( 'data-post-type', substr( $post_type, 5 ) );
 				}
@@ -613,16 +621,11 @@ class Block_Converter_Recursive extends Block_Converter {
 			'wbr'       // Word break opportunity
 		];
 
-		if ( $block_type = self::node_matches_class( $node, 'wp-block-' ) ) {
-			$this->unhandled_blocks[ $block_type ] = $node;
-			#var_dump( static::get_node_html( $node ) );
-			trigger_error( "Unhandled block type: <$node->nodeName> $block_type", E_USER_WARNING );
-		}
-
 		// Handle above block types that are allowed within a paragraph block.
 		if ( in_array( $node->nodeName, $ignore ) ) {
 			// If it's already within a paragraph block, just return the HTML as-is.
-			if ( static::node_ancestor_is( $node, 'p' ) ) {
+			$ok_parent_blocks = [ 'p', 'li', 'th', 'td', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6' ];
+			if ( static::node_ancestor_is( $node, $ok_parent_blocks ) ) {
 				return new Block( null, [], static::get_node_html( $node ) );
 			} elseif ( 'a' === $node->nodeName ) {
 				// Bare anchor tags are fairly common, but Gutenberg only allows them within a paragraph block.
@@ -633,6 +636,11 @@ class Block_Converter_Recursive extends Block_Converter {
 			return new Block( null, [], static::get_node_html( $node ) );
 		}
 
+		if ( $block_type = self::node_matches_class( $node, 'wp-block-' ) ) {
+			$this->unhandled_blocks[ $block_type ] = $node;
+			#var_dump( static::get_node_html( $node ) );
+			trigger_error( "Unhandled block type: <$node->nodeName> $block_type", E_USER_WARNING );
+		}
 
 		// Default should wrap in a html block.
 		return parent::html( $node );
