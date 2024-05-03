@@ -3,11 +3,13 @@
 <!-- /wp:paragraph -->
 <div class="wp-block-wordcamp-schedule alignwide is-loading" data-attributes='{"__isStylesPreview":false,"align":"wide","chooseSpecificDays":false,"chosenDays":[],"chooseSpecificTracks":false,"chosenTrackIds":[],"showCategories":true,"useClientTimezone":false}'>
 	Loading…</div>
-<!-- wp:html -->
-<div class="email-form fav-session-email-form-hide"><!-- wp:html --><!-- Tab links --><!-- /wp:html --><!-- wp:html --><div class="fav-session-share-tab"><!-- wp:html --><div class="fav-session-tablinks" id="fav-session-btn-email">
-					Email				</div><!-- /wp:html --><!-- wp:html --><div class="fav-session-tablinks" id="fav-session-btn-link">
-				Link			</div><!-- /wp:html --><!-- wp:html --><div class="fav-session-tablinks" id="fav-session-btn-print">
-				Print			</div><!-- /wp:html --></div><!-- /wp:html --><!-- wp:html --><!-- Tab content --><!-- /wp:html --><!-- wp:html --><div id="fav-session-tab-email" class="fav-session-share-tabcontent"><!-- wp:html --><div id="fav-session-email-form"><!-- wp:html --><form id="fav-sessions-form"><input type="text" name="email_address" id="fav-sessions-email-address" placeholder="me@protonmail.com"></form><!-- /wp:html --></div><!-- /wp:html --><!-- wp:html --><div class="fav-session-email-wait-spinner"></div><!-- /wp:html --><!-- wp:html --><div class="fav-session-email-result"></div><!-- /wp:html --></div><!-- /wp:html --><!-- wp:html --><div id="fav-session-tab-link" class="fav-session-share-tabcontent"><a id="fav-sessions-link" href=""></a></div><!-- /wp:html --><!-- wp:html --><div id="fav-session-tab-print" class="fav-session-share-tabcontent"><!-- wp:html --><button id="fav-session-print">
-				Print favorite sessions			</button><!-- /wp:html --></div><!-- /wp:html --></div>
-<!-- /wp:html -->
-<a class="show-email-form" href="javascript:"><span class="dashicons dashicons-star-filled"><span class="dashicons dashicons-email-alt"></span></span></a>
+<!-- wp:group -->
+<div class="wp-block-group email-form fav-session-email-form-hide"><!-- wp:html --><!-- Tab links --><!-- /wp:html --><!-- wp:group --><div class="wp-block-group fav-session-share-tab"><!-- wp:group --><div class="wp-block-group fav-session-tablinks" id="fav-session-btn-email">
+					Email				</div><!-- /wp:group --><!-- wp:group --><div class="wp-block-group fav-session-tablinks" id="fav-session-btn-link">
+				Link			</div><!-- /wp:group --><!-- wp:group --><div class="wp-block-group fav-session-tablinks" id="fav-session-btn-print">
+				Print			</div><!-- /wp:group --></div><!-- /wp:group --><!-- wp:html --><!-- Tab content --><!-- /wp:html --><!-- wp:group --><div id="fav-session-tab-email" class="wp-block-group fav-session-share-tabcontent"><!-- wp:group --><div id="fav-session-email-form" class="wp-block-group"><!-- wp:html --><form id="fav-sessions-form"><input type="text" name="email_address" id="fav-sessions-email-address" placeholder="me@protonmail.com"></form><!-- /wp:html --></div><!-- /wp:group --><!-- wp:group --><div class="wp-block-group fav-session-email-wait-spinner"></div><!-- /wp:group --><!-- wp:group --><div class="wp-block-group fav-session-email-result"></div><!-- /wp:group --></div><!-- /wp:group --><!-- wp:group --><div id="fav-session-tab-link" class="wp-block-group fav-session-share-tabcontent"><!-- wp:paragraph --><p><a id="fav-sessions-link" href=""></a></p><!-- /wp:paragraph --></div><!-- /wp:group --><!-- wp:group --><div id="fav-session-tab-print" class="wp-block-group fav-session-share-tabcontent"><!-- wp:html --><button id="fav-session-print">
+				Print favorite sessions			</button><!-- /wp:html --></div><!-- /wp:group --></div>
+<!-- /wp:group -->
+<!-- wp:paragraph -->
+<p><a class="show-email-form" href="javascript:"><span class="dashicons dashicons-star-filled"><span class="dashicons dashicons-email-alt"></span></span></a></p>
+<!-- /wp:paragraph -->

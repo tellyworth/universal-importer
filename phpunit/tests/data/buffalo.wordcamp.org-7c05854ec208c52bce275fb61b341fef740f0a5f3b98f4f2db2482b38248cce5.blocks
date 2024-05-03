@@ -4,7 +4,7 @@
 <!-- wp:paragraph -->
 <p>WordCamp Buffalo 2024 would not be possible without the support of great sponsors like these:</p>
 <!-- /wp:paragraph -->
-<!-- wp:query {"layout":{"type":"default"},"query":{"perPage":"7","postType":"wcb_sponsor"}} -->
+<!-- wp:query {"layout":{"type":"default"},"query":{"perPage":"7","postType":"wcb_sponsor","postStatus":"publish"}} -->
 <div class="wp-block-query is-layout-flow wp-block-query-is-layout-flow"><!-- wp:post-template --><!-- wp:post-featured-image /--><!-- /wp:post-template --></div>
 <!-- /wp:query -->
 <!-- wp:heading {"level":2} -->

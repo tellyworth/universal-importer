@@ -109,9 +109,9 @@ EOF;
 
 		// Should be left intact inside the html wrapper
 		$expected = <<<EOF
-<!-- wp:html -->
-<div style="" class="grunion-field-text-wrap grunion-field-wrap"><label for="g4-contactname" class="grunion-field-label text"><span class="grunion-label-required" aria-hidden="true">(required)</span><input type="text" name="g4-contactname" id="g4-contactname" value="" class="text  grunion-field" required aria-required="true"></label></div>
-<!-- /wp:html -->
+<!-- wp:group -->
+<div class="wp-block-group grunion-field-text-wrap grunion-field-wrap"><label for="g4-contactname" class="grunion-field-label text"><span class="grunion-label-required" aria-hidden="true">(required)</span><input type="text" name="g4-contactname" id="g4-contactname" value="" class="text  grunion-field" required aria-required="true"></label></div>
+<!-- /wp:group -->
 EOF;
 
 		$converter = new Block_Converter_Recursive( $html );
@@ -139,7 +139,7 @@ EOF;
 		// <!-- wp:latest-posts {"postsToShow":8,"displayPostContent":true,"displayAuthor":true,"displayPostDate":true,"displayFeaturedImage":true,"addLinkToFeaturedImage":true} /-->
 
 		$expected =<<<EOF
-<!-- wp:latest-posts {"displayPostDate":true,"displayAuthor":true} /-->
+<!-- wp:latest-posts {"postsToShow":24,"displayPostDate":true,"displayAuthor":true} /-->
 EOF;
 
 		$converter = new Block_Converter_Recursive( $html );
@@ -256,7 +256,7 @@ EOF;
 		$converter = new Block_Converter_Recursive( $html );
 
 		$blocks = $converter->convert();
-		var_dump( __METHOD__, $html, $blocks );ob_flush();flush();
+		#var_dump( __METHOD__, $html, $blocks );ob_flush();flush();
 		$this->assertEquals( $expected, $blocks );
 	}
 }
